@@ -5,80 +5,448 @@
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>webSPDZ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #f5f6fa;
+            --bg-glow-1: rgba(99, 102, 241, 0.16);
+            --bg-glow-2: rgba(20, 184, 166, 0.14);
+            --surface: #ffffff;
+            --surface-2: #f0f2f7;
+            --border: #e2e5ee;
+            --text: #141826;
+            --muted: #5d6478;
+            --accent: #5b5bd6;
+            --accent-2: #14a38b;
+            --danger: #d64545;
+            --term-bg: #0f1220;
+            --term-text: #d7dcf0;
+            --term-muted: #7c85a6;
+            --shadow: 0 1px 2px rgba(20, 24, 38, 0.04), 0 12px 32px rgba(20, 24, 38, 0.08);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0b0d16;
+                --bg-glow-1: rgba(99, 102, 241, 0.20);
+                --bg-glow-2: rgba(20, 184, 166, 0.12);
+                --surface: #141826;
+                --surface-2: #1b2033;
+                --border: #262c42;
+                --text: #e9ecf7;
+                --muted: #9099b5;
+                --accent: #8b8cf5;
+                --accent-2: #3fd1b3;
+                --danger: #f07575;
+                --term-bg: #090b13;
+                --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+            }
+        }
+        * { box-sizing: border-box; }
         body {
-            font-family: arial;
             margin: 0;
-            padding: 0;
-            background-color: #fff;
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(900px 500px at 10% -10%, var(--bg-glow-1), transparent 60%),
+                radial-gradient(800px 500px at 110% 10%, var(--bg-glow-2), transparent 60%),
+                var(--bg);
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 28px 16px 48px;
+        }
+
+        /* Header */
+        header {
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            position: relative;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
         }
-        #console-container {
-            width: 88%;
-            max-width: 880px;
-            background-color: #444;
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: grid; place-items: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
             color: #fff;
-            padding: 22px;
-            box-sizing: border-box;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 6px 18px rgba(91, 91, 214, 0.35);
         }
+        .brand-name { font-weight: 700; font-size: 20px; letter-spacing: 0.5px; }
+        .brand-sub { font-size: 13px; color: var(--muted); }
+        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip {
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+        .chip b { color: var(--text); font-weight: 600; }
+
+        /* Hero */
+        .hero { margin-bottom: 24px; }
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: clamp(26px, 4vw, 36px);
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+        }
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hero p { margin: 0; color: var(--muted); max-width: 680px; line-height: 1.55; }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: border-color .3s, background .3s;
+        }
+        .dot {
+            flex: none;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            display: grid; place-items: center;
+            font-size: 12px; font-weight: 600;
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            transition: all .3s;
+        }
+        .step-label { font-size: 13.5px; font-weight: 600; }
+        .step-hint { font-size: 12px; color: var(--muted); }
+        .step.active { border-color: var(--accent); }
+        .step.active .dot {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        .step.done .dot { background: var(--accent-2); color: #fff; border-color: var(--accent-2); }
+        .step.failed { border-color: var(--danger); }
+        .step.failed .dot { background: var(--danger); color: #fff; border-color: var(--danger); }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(91, 91, 214, 0.45); }
+            50% { box-shadow: 0 0 0 6px rgba(91, 91, 214, 0); }
+        }
+
+        /* Main grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 20px;
+            align-items: start;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .card-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px; font-weight: 600; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.8px;
+        }
+
+        /* Result card */
+        .result-body { padding: 26px 22px 24px; text-align: center; }
+        .result-kicker { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+        .result-value {
+            font-size: 72px; font-weight: 700; line-height: 1;
+            letter-spacing: -2px;
+            margin: 6px 0 12px;
+            color: var(--muted);
+            transition: color .4s;
+        }
+        .result-value.ok {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .result-value.none { color: var(--danger); font-size: 40px; letter-spacing: 0; }
+        .result-text { font-size: 15px; font-weight: 500; min-height: 22px; }
+        .spinner {
+            width: 44px; height: 44px; margin: 14px auto 18px;
+            border-radius: 50%;
+            border: 3px solid var(--surface-2);
+            border-top-color: var(--accent);
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .privacy {
+            display: flex; gap: 10px; align-items: flex-start;
+            text-align: left;
+            margin: 22px 0 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: var(--surface-2);
+            font-size: 12.5px; color: var(--muted); line-height: 1.5;
+        }
+        .privacy svg { flex: none; margin-top: 1px; color: var(--accent-2); }
+
+        /* Status line */
+        #status {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            text-transform: none;
+            letter-spacing: 0;
+            display: flex; align-items: center; gap: 8px;
+            max-width: 70%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        #status::before {
+            content: ""; flex: none;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+        }
+        body.is-done #status::before { background: var(--accent-2); }
+        body.is-error #status::before { background: var(--danger); }
+        body.is-error #status { color: var(--danger); }
+
+        /* Terminal */
+        .term { background: var(--term-bg); }
+        .term .card-head { border-bottom-color: rgba(255, 255, 255, 0.06); color: var(--term-muted); }
+        .lights { display: flex; gap: 6px; }
+        .lights i { width: 10px; height: 10px; border-radius: 50%; display: block; background: #3a4060; }
+        .lights i:nth-child(1) { background: #ff5f57; }
+        .lights i:nth-child(2) { background: #febc2e; }
+        .lights i:nth-child(3) { background: #28c840; }
         #output {
+            display: block;
             width: 100%;
-            height: 400px;
-            background-color: #444;
-            color: #fff;
-            font-family: 'Lucida Console', Monaco, monospace;
-            font-size: 1.1em;
+            height: 300px;
+            padding: 16px 18px;
+            background: transparent;
+            color: var(--term-text);
+            font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.6;
             outline: 0;
-            box-sizing: border-box;
             border: none;
             resize: none;
         }
-        #status {
-            margin-bottom: 10px;
-            font-size: 1.3em;
+        details.log { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+        details.log summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 12px 18px;
+            font-size: 12.5px; font-weight: 500;
+            color: var(--term-muted);
+            user-select: none;
+        }
+        details.log summary::-webkit-details-marker { display: none; }
+        details.log summary::before { content: "▸ "; }
+        details.log[open] summary::before { content: "▾ "; }
+        #syslog {
+            margin: 0;
+            max-height: 180px;
+            overflow: auto;
+            padding: 0 18px 14px;
+            font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.55;
+            color: var(--term-muted);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        footer {
+            margin-top: 26px;
             text-align: center;
+            font-size: 12.5px;
+            color: var(--muted);
         }
-        #logo {
-            position: absolute;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 500;
-            top: 40px;
-            left: 30px;
-            font-size: 35px;
-            color: #000000;
-            letter-spacing: 3px;
+
+        @media (max-width: 860px) {
+            .grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: repeat(2, 1fr); }
         }
-        @media (max-width: 600px) {
-            #console-container {
-                width: 95%;
-                padding: 15px;
-            }
-            #output {
-                height: 70vh;
-                font-size: 1em;
-            }
-            #status {
-                font-size: 1.1em;
-            }
-            #logo {
-                font-size: 1.2em;
-            }
+        @media (max-width: 480px) {
+            .steps { grid-template-columns: 1fr; }
+            .result-value { font-size: 56px; }
+            #output { height: 240px; }
         }
     </style>
 </head>
 <body>
-    <div id="logo">webSPDZ</div>
-    <div id="console-container">
-        <div id="status">webSPDZ</div>
-        <textarea id="output" rows="8"></textarea>
+    <div class="wrap">
+        <header>
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                </div>
+                <div>
+                    <div class="brand-name">webSPDZ</div>
+                    <div class="brand-sub">Secure multiparty computation in the browser</div>
+                </div>
+            </div>
+            <div class="chips">
+                <span class="chip">Protocol <b id="chip-protocol">—</b></span>
+                <span class="chip">Party <b id="chip-party">—</b></span>
+                <span class="chip">Parties <b id="chip-n">—</b></span>
+            </div>
+        </header>
+
+        <section class="hero">
+            <h1 id="hero-title">Private <span>matching</span></h1>
+            <p>Each participant keeps its inputs on its own device. The parties compute the result jointly over
+               encrypted shares, and each one learns only its own output — never anyone else's data.</p>
+        </section>
+
+        <section class="steps" aria-label="Progress">
+            <div class="step" id="step-load"><div class="dot">1</div><div><div class="step-label">Load</div><div class="step-hint">Download runtime</div></div></div>
+            <div class="step" id="step-connect"><div class="dot">2</div><div><div class="step-label">Connect</div><div class="step-hint">Peer-to-peer channels</div></div></div>
+            <div class="step" id="step-compute"><div class="dot">3</div><div><div class="step-label">Compute</div><div class="step-hint">Secure protocol</div></div></div>
+            <div class="step" id="step-result"><div class="dot">4</div><div><div class="step-label">Result</div><div class="step-hint">Private output</div></div></div>
+        </section>
+
+        <main class="grid">
+            <section class="card">
+                <div class="card-head"><span>Your result</span></div>
+                <div class="result-body">
+                    <div class="result-kicker" id="result-kicker">Waiting for the computation…</div>
+                    <div class="spinner" id="spinner"></div>
+                    <div class="result-value" id="result-value" hidden></div>
+                    <div class="result-text" id="result-text"></div>
+                    <div class="privacy">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>This result was revealed only to this party. The other participants' inputs stay secret-shared throughout the computation.</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card term">
+                <div class="card-head">
+                    <div id="status">webSPDZ</div>
+                    <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+                </div>
+                <textarea id="output" rows="8" readonly spellcheck="false"></textarea>
+                <details class="log">
+                    <summary>System log</summary>
+                    <pre id="syslog"></pre>
+                </details>
+            </section>
+        </main>
+
+        <footer>Built with webSPDZ · MP-SPDZ compiled to WebAssembly · WebRTC peer-to-peer</footer>
     </div>
+
     <script>
+        // ---- Presentation helpers (UI only) ----
+        var ui = (function() {
+            var args = [];
+            try {
+                var sp = new URLSearchParams(window.location.search);
+                if (sp.has('arguments')) args = sp.get('arguments').split(',');
+            } catch (e) {}
+            // Strip the options that take a value, the remaining positionals are <party> <program>
+            var withValue = { '-N': 1, '-T': 1, '-w': 1, '--web': 1, '-OF': 1, '-IF': 1, '-p': 1, '-h': 1, '-pn': 1, '-b': 1, '-B': 1, '-lgp': 1, '-P': 1 };
+            var pos = [], n = '', party = '';
+            for (var i = 0; i < args.length; i++) {
+                var a = args[i];
+                if (a === '-N') n = args[i + 1] || '';
+                if (a === '-p') party = args[i + 1] || '';
+                if (withValue[a]) { i++; continue; }
+                if (a.charAt(0) === '-' && isNaN(Number(a))) continue;
+                if (a !== '') pos.push(a);
+            }
+            var program = pos.length ? pos[pos.length - 1] : '';
+            if (party === '' && pos.length >= 2) party = pos[pos.length - 2];
+            var page = (window.location.pathname.split('/').pop() || '').replace(/\.html$/, '');
+            var protocol = page.replace(/-party$/, '').replace(/-/g, ' ').toUpperCase() || 'MPC';
+
+            var $ = function(id) { return document.getElementById(id); };
+            $('chip-protocol').textContent = protocol;
+            $('chip-party').textContent = party !== '' ? 'P' + party : '—';
+            $('chip-n').textContent = n || '—';
+            if (program) {
+                var pretty = program.replace(/[_-]+/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+                $('hero-title').innerHTML = '';
+                $('hero-title').append(document.createTextNode(pretty.split(' ').slice(0, -1).join(' ') + ' '));
+                var last = document.createElement('span');
+                last.textContent = pretty.split(' ').slice(-1)[0];
+                $('hero-title').append(last);
+                document.title = pretty + ' · webSPDZ';
+            }
+
+            var order = ['load', 'connect', 'compute', 'result'];
+            var current = -1;
+            function stage(name) {
+                var idx = order.indexOf(name);
+                if (idx <= current) return;
+                current = idx;
+                order.forEach(function(s, i) {
+                    var el = $('step-' + s);
+                    el.classList.toggle('done', i < idx || (name === 'result' && i === idx));
+                    el.classList.toggle('active', i === idx && name !== 'result');
+                });
+            }
+            function fail() {
+                document.body.classList.add('is-error');
+                if (current >= 0) $('step-' + order[current]).classList.add('failed');
+                $('spinner').hidden = true;
+                $('result-kicker').textContent = 'The computation stopped with an error.';
+                $('result-text').textContent = 'See the system log or the JavaScript console.';
+            }
+            function result(code) {
+                stage('result');
+                document.body.classList.add('is-done');
+                var v = $('result-value');
+                $('spinner').hidden = true;
+                v.hidden = false;
+                if (code === -1) {
+                    v.className = 'result-value none';
+                    v.textContent = 'No match';
+                    $('result-kicker').textContent = 'Recommended partner';
+                    $('result-text').textContent = 'No useful partner was found for this party.';
+                } else {
+                    v.className = 'result-value ok';
+                    v.textContent = 'P' + code;
+                    $('result-kicker').textContent = 'Recommended partner';
+                    $('result-text').textContent = 'Your best partner is participant ' + code + '.';
+                }
+            }
+            function onOut(line) {
+                var m = /PARTNER CODE\s*=\s*(-?\d+)/i.exec(line);
+                if (m) result(parseInt(m[1], 10));
+            }
+            function onErr(line) {
+                var log = $('syslog');
+                log.textContent += line + '\n';
+                log.scrollTop = log.scrollHeight;
+                if (/All clients connected/i.test(line)) stage('compute');
+                else if (/DataChannel|Starting|connect/i.test(line)) stage('connect');
+            }
+            stage('load');
+            return { stage: stage, fail: fail, onOut: onOut, onErr: onErr };
+        })();
+
+        // ---- Emscripten module glue (functionality unchanged) ----
         var statusElement = document.getElementById("status"),
             outputElement = document.getElementById("output"),
             Module = {
@@ -88,15 +456,22 @@
                     (...t) => {
                         var n = t.join(" ");
                         console.log(n),
-                        e && (e.value += n + "\n", e.scrollTop = e.scrollHeight)
+                        e && (e.value += n + "\n", e.scrollTop = e.scrollHeight);
+                        try { ui.onOut(n); } catch (x) {}
                     }
                 }(),
+                printErr: (...t) => {
+                    var n = t.join(" ");
+                    console.error(n);
+                    try { ui.onErr(n); } catch (x) {}
+                },
                 setStatus: e => {
                     if (Module.setStatus.last ??= { time: Date.now(), text: "" }, e !== Module.setStatus.last.text) {
                         var t = Date.now();
                         Module.setStatus.last.time = t;
                         Module.setStatus.last.text = e;
                         statusElement.innerHTML = e;
+                        if (e === "") { statusElement.textContent = "Running"; ui.stage('connect'); }
                     }
                 },
                 totalDependencies: 0,
@@ -108,6 +483,7 @@
         Module.setStatus("Downloading...");
         window.onerror = e => {
             Module.setStatus("Exception thrown, see JavaScript console");
+            try { ui.fail(); } catch (x) {}
             Module.setStatus = e => {
                 e && console.error("[post-exception status] " + e);
             };

@@ -1,0 +1,230 @@
+from Compiler.types import sint
+from Compiler.library import print_ln_to
+
+T = 10
+
+# ----------------------------
+# Helpers sobre valores secretos
+# ----------------------------
+
+def smax(a, b):
+    c = a > b
+    return b + c * (a - b)
+
+def smin(a, b):
+    c = a > b
+    return a - c * (a - b)
+
+def positive_part(x):
+    return x * (x > 0)
+
+def pair_metrics(def_i, sur_i, def_j, sur_j):
+    benefit = sint(0)
+    coverage = sint(0)
+    worst = sint(0)
+
+    for k in range(4):
+        help_i_from_j = smin(def_i[k], sur_j[k])
+        help_j_from_i = smin(def_j[k], sur_i[k])
+
+        benefit += help_i_from_j + help_j_from_i
+
+        coverage += (help_i_from_j > 0)
+        coverage += (help_j_from_i > 0)
+
+        rem_i = def_i[k] - help_i_from_j
+        rem_j = def_j[k] - help_j_from_i
+
+        worst = smax(worst, rem_i)
+        worst = smax(worst, rem_j)
+
+    useful = benefit > 0
+
+    return benefit, coverage, worst, useful
+
+
+def better(matched_a, benefit_a, coverage_a, worst_a,
+           matched_b, benefit_b, coverage_b, worst_b):
+
+    g1 = matched_a > matched_b
+    e1 = matched_a == matched_b
+
+    g2 = benefit_a > benefit_b
+    e2 = benefit_a == benefit_b
+
+    g3 = coverage_a > coverage_b
+    e3 = coverage_a == coverage_b
+
+    # Aquí MENOR worst es mejor
+    g4 = worst_a < worst_b
+
+    return (
+        g1
+        + e1 * g2
+        + e1 * e2 * g3
+        + e1 * e2 * e3 * g4
+    )
+
+
+# ----------------------------
+# 1. Inputs privados
+# Cada país mete 4 skills
+# ----------------------------
+
+X = []
+
+for i in range(4):
+    row = []
+    for k in range(4):
+        row.append(sint.get_input_from(i))
+    X.append(row)
+
+
+# ----------------------------
+# 2. Déficit y surplus secretos
+# ----------------------------
+
+D = []
+S = []
+
+for i in range(4):
+    drow = []
+    srow = []
+
+    for k in range(4):
+        drow.append(positive_part(T - X[i][k]))
+        srow.append(positive_part(X[i][k] - T))
+
+    D.append(drow)
+    S.append(srow)
+
+
+# ----------------------------
+# 3. Las 6 parejas posibles
+# ----------------------------
+
+b01, c01, w01, u01 = pair_metrics(D[0], S[0], D[1], S[1])
+b02, c02, w02, u02 = pair_metrics(D[0], S[0], D[2], S[2])
+b03, c03, w03, u03 = pair_metrics(D[0], S[0], D[3], S[3])
+
+b12, c12, w12, u12 = pair_metrics(D[1], S[1], D[2], S[2])
+b13, c13, w13, u13 = pair_metrics(D[1], S[1], D[3], S[3])
+b23, c23, w23, u23 = pair_metrics(D[2], S[2], D[3], S[3])
+
+
+# ----------------------------
+# 4. Los 3 matchings globales
+#
+# M0 = (0,1) + (2,3)
+# M1 = (0,2) + (1,3)
+# M2 = (0,3) + (1,2)
+# ----------------------------
+
+m0_matched = 2 * u01 + 2 * u23
+m0_benefit = b01 + b23
+m0_coverage = c01 + c23
+m0_worst = smax(w01, w23)
+
+m1_matched = 2 * u02 + 2 * u13
+m1_benefit = b02 + b13
+m1_coverage = c02 + c13
+m1_worst = smax(w02, w13)
+
+m2_matched = 2 * u03 + 2 * u12
+m2_benefit = b03 + b12
+m2_coverage = c03 + c12
+m2_worst = smax(w03, w12)
+
+
+# ----------------------------
+# 5. Selección lexicográfica
+#
+# prioridad:
+# 1) más países emparejados
+# 2) mayor beneficio
+# 3) mayor cobertura
+# 4) menor peor déficit restante
+# 5) empate exacto -> menor ID
+# ----------------------------
+
+winner = sint(0)
+
+best_matched = m0_matched
+best_benefit = m0_benefit
+best_coverage = m0_coverage
+best_worst = m0_worst
+
+
+choose1 = better(
+    m1_matched, m1_benefit, m1_coverage, m1_worst,
+    best_matched, best_benefit, best_coverage, best_worst
+)
+
+winner = choose1 * 1 + (1 - choose1) * winner
+
+best_matched = choose1 * m1_matched + (1 - choose1) * best_matched
+best_benefit = choose1 * m1_benefit + (1 - choose1) * best_benefit
+best_coverage = choose1 * m1_coverage + (1 - choose1) * best_coverage
+best_worst = choose1 * m1_worst + (1 - choose1) * best_worst
+
+
+choose2 = better(
+    m2_matched, m2_benefit, m2_coverage, m2_worst,
+    best_matched, best_benefit, best_coverage, best_worst
+)
+
+winner = choose2 * 2 + (1 - choose2) * winner
+
+
+# ----------------------------
+# 6. Partner secreto de cada país
+# -1 significa NO GOOD MATCH
+# ----------------------------
+
+def partner_if_useful(useful, partner_id):
+    return -1 + useful * (partner_id + 1)
+
+
+# Partners si gana M0
+p0_m0 = partner_if_useful(u01, 1)
+p1_m0 = partner_if_useful(u01, 0)
+p2_m0 = partner_if_useful(u23, 3)
+p3_m0 = partner_if_useful(u23, 2)
+
+# Partners si gana M1
+p0_m1 = partner_if_useful(u02, 2)
+p2_m1 = partner_if_useful(u02, 0)
+p1_m1 = partner_if_useful(u13, 3)
+p3_m1 = partner_if_useful(u13, 1)
+
+# Partners si gana M2
+p0_m2 = partner_if_useful(u03, 3)
+p3_m2 = partner_if_useful(u03, 0)
+p1_m2 = partner_if_useful(u12, 2)
+p2_m2 = partner_if_useful(u12, 1)
+
+
+is_m0 = winner == 0
+is_m1 = winner == 1
+is_m2 = winner == 2
+
+
+partner0 = is_m0 * p0_m0 + is_m1 * p0_m1 + is_m2 * p0_m2
+partner1 = is_m0 * p1_m0 + is_m1 * p1_m1 + is_m2 * p1_m2
+partner2 = is_m0 * p2_m0 + is_m1 * p2_m1 + is_m2 * p2_m2
+partner3 = is_m0 * p3_m0 + is_m1 * p3_m1 + is_m2 * p3_m2
+
+
+# ----------------------------
+# 7. SOLO salida privada
+# ----------------------------
+
+out0 = partner0.reveal_to(0)
+out1 = partner1.reveal_to(1)
+out2 = partner2.reveal_to(2)
+out3 = partner3.reveal_to(3)
+
+print_ln_to(0, 'YOUR PARTNER CODE = %s', out0)
+print_ln_to(1, 'YOUR PARTNER CODE = %s', out1)
+print_ln_to(2, 'YOUR PARTNER CODE = %s', out2)
+print_ln_to(3, 'YOUR PARTNER CODE = %s', out3)
