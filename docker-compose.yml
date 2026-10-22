@@ -1,0 +1,35 @@
+# Plug-and-play runner for the webSPDZ browser demo.
+#
+#   docker compose up --build
+#
+# Then open these 4 URLs in 4 Chrome tabs (same machine):
+#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,0,surplus_matching_private,-OF,.
+#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,1,surplus_matching_private,-OF,.
+#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,2,surplus_matching_private,-OF,.
+#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,3,surplus_matching_private,-OF,.
+#
+# Chrome will warn about the self-signed certificate on first visit to both
+# https://localhost:8000 and https://localhost:8080 — click through/accept it
+# on each before opening the party tabs (the signaling server also needs the
+# cert trusted since it speaks wss://). Works the same on Linux, Intel Mac
+# and Apple Silicon Mac — nothing here is architecture-specific.
+#
+# Stop with Ctrl+C, or `docker compose down`.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    image: webspdz-demo:local
+    command: ["python3", "https-server.py", "0.0.0.0", "8000"]
+    ports:
+      - "8000:8000"
+
+  signaling:
+    image: webspdz-demo:local
+    command: ["node", "signaling_wss_server.js", "0.0.0.0", "8080"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - web

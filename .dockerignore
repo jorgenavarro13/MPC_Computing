@@ -1,0 +1,38 @@
+# Keeps `docker build` fast: the demo image only needs the already-built
+# *.html/*.js/*.wasm, the two servers, certificates/, and package*.json.
+# Everything below is C++/toolchain source or prebuilt libs used to produce
+# those artifacts, not to serve them.
+.git
+Paper-Benchmarks/
+local/
+node_modules/
+Compiler/
+Protocols/
+Processor/
+Networking/
+Math/
+FHE/
+FHEOffline/
+GC/
+BMR/
+ECDSA/
+OT/
+Yao/
+Tools/
+Utils/
+Machines/
+Scripts/
+deps/
+ExternalIO/
+legacyServer/
+doc/
+paper/
+Programs/Bytecode/
+Programs/Schedules/
+Programs/Public-Input/
+*.pdf
+*.so
+*.o
+*.a
+*.bc
+*.sch

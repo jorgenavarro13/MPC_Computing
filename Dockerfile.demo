@@ -1,0 +1,30 @@
+# webSPDZ demo server — serves the already-compiled ATLAS/Shamir/Rep4-Ring/etc.
+# WebAssembly builds that are committed in this repo. No C++/Emscripten
+# toolchain is installed or run here: atlas-party.wasm (and friends) already
+# have their MPC program and Player-Data embedded from the last local build,
+# so this image is just two small static/WebSocket servers. That keeps it
+# fast and identical on Linux, Intel Mac and Apple Silicon Mac.
+#
+# Build once, run two services from it (see docker-compose.yml):
+#   docker compose up --build
+#
+# To change the demo's Player-Data inputs or rebuild a protocol from source,
+# do that on the host first (see Guia_desde_cero_Surplus_ATLAS pdf /
+# webSPDZ-ATLAS-changes pdf), then rebuild this image — it only ships
+# whatever *.html/*.js/*.wasm already exist in the repo at build time.
+
+FROM node:20-bookworm-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY *.html *.js *.wasm *.py ./
+COPY certificates/ ./certificates/
+
+EXPOSE 8000 8080
