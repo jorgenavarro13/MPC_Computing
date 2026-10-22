@@ -450,6 +450,7 @@
         var statusElement = document.getElementById("status"),
             outputElement = document.getElementById("output"),
             Module = {
+                noInitialRun: true,
                 print: function() {
                     var e = outputElement;
                     return e && (e.value = ""),

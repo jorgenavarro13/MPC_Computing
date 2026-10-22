@@ -163,7 +163,7 @@ $(LIBRELEASE): Protocols/MalRepRingOptions.o $(PROCESSOR) $(COMMONOBJS) $(TINIER
 ifeq ($(WEB), 1)
 CFLAGS += -fPIC
 LDLIBS += -I $(CURDIR)
-LDFLAGS += -sWASMFS -sUSE_BOOST_HEADERS --js-library deps/datachannel-wasm/wasm/js/webrtc.js -sPROXY_TO_PTHREAD --post-js local/testing-post.js -sUSE_PTHREADS -sINITIAL_MEMORY=500mb
+LDFLAGS += -sWASMFS -sUSE_BOOST_HEADERS --js-library deps/datachannel-wasm/wasm/js/webrtc.js -sPROXY_TO_PTHREAD --post-js local/testing-post.js -sUSE_PTHREADS -sINITIAL_MEMORY=500mb -sEXPORTED_RUNTIME_METHODS=FS,callMain
 ifeq ($(SINGLE_THREADED_WEBSOCKET), 1)
 CFLAGS += -DSINGLE_THREADED_WEBSOCKET
 LDFLAGS += -sASYNCIFY
