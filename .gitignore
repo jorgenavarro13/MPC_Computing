@@ -121,3 +121,6 @@ _build/
 # temp doc files
 doc/readme.md
 doc/xml
+
+# Paper drafts (written locally, edited in Prism)
+paper/
