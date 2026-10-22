@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>webSPDZ · ATLAS lobby</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f6fa;
+            --bg-glow-1: rgba(99, 102, 241, 0.16);
+            --bg-glow-2: rgba(20, 184, 166, 0.14);
+            --surface: #ffffff;
+            --surface-2: #f0f2f7;
+            --border: #e2e5ee;
+            --text: #141826;
+            --muted: #5d6478;
+            --accent: #5b5bd6;
+            --accent-2: #14a38b;
+            --danger: #d64545;
+            --term-bg: #0f1220;
+            --term-text: #d7dcf0;
+            --term-muted: #7c85a6;
+            --shadow: 0 1px 2px rgba(20, 24, 38, 0.04), 0 12px 32px rgba(20, 24, 38, 0.08);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0b0d16;
+                --bg-glow-1: rgba(99, 102, 241, 0.20);
+                --bg-glow-2: rgba(20, 184, 166, 0.12);
+                --surface: #141826;
+                --surface-2: #1b2033;
+                --border: #262c42;
+                --text: #e9ecf7;
+                --muted: #9099b5;
+                --accent: #8b8cf5;
+                --accent-2: #3fd1b3;
+                --danger: #f07575;
+                --term-bg: #090b13;
+                --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(900px 500px at 10% -10%, var(--bg-glow-1), transparent 60%),
+                radial-gradient(800px 500px at 110% 10%, var(--bg-glow-2), transparent 60%),
+                var(--bg);
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 16px 48px; }
+
+        header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: grid; place-items: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #fff; box-shadow: 0 6px 18px rgba(91, 91, 214, 0.35);
+        }
+        .brand-name { font-weight: 700; font-size: 20px; letter-spacing: 0.5px; }
+        .brand-sub { font-size: 13px; color: var(--muted); }
+        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip {
+            font-size: 12.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px;
+            background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+        }
+        .chip b { color: var(--text); font-weight: 600; }
+
+        .hero { margin-bottom: 24px; }
+        .hero h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 36px); line-height: 1.15; letter-spacing: -0.5px; }
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .hero p { margin: 0; color: var(--muted); max-width: 680px; line-height: 1.55; }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+            box-shadow: var(--shadow); overflow: hidden;
+        }
+        .card-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+            font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px;
+        }
+        .card-body { padding: 20px 22px 22px; }
+
+        /* Lobby-specific */
+        #lobby-view { display: grid; gap: 18px; }
+        .room-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+        .room-row a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+        .seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+        .seat {
+            border: 1px solid var(--border); border-radius: 14px; padding: 12px;
+            background: var(--surface-2); text-align: center; transition: border-color .2s, background .2s;
+        }
+        .seat .seat-label { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+        .seat .seat-state { font-size: 13.5px; font-weight: 600; }
+        .seat.filled { border-color: var(--border); background: var(--surface); }
+        .seat.ready { border-color: var(--accent-2); }
+        .seat.ready .seat-state { color: var(--accent-2); }
+        .seat.me { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(91,91,214,.15) inset; }
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+        .form-grid label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+        .form-grid input {
+            width: 100%; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text); font-size: 14px; font-family: inherit;
+        }
+        .form-grid input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+        button.primary {
+            appearance: none; border: none; border-radius: 12px; padding: 11px 20px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+        }
+        button.primary:disabled { opacity: .5; cursor: not-allowed; }
+        button.primary.is-ready { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+        .hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+        .error-box {
+            border: 1px solid var(--danger); background: rgba(214,69,69,.08); color: var(--danger);
+            border-radius: 10px; padding: 10px 14px; font-size: 13px; display: none;
+        }
+        .error-box.show { display: block; }
+        .privacy {
+            display: flex; gap: 10px; align-items: flex-start; text-align: left;
+            margin: 18px 0 0; padding: 12px 14px; border-radius: 12px;
+            background: var(--surface-2); font-size: 12.5px; color: var(--muted); line-height: 1.5;
+        }
+        .privacy svg { flex: none; margin-top: 1px; color: var(--accent-2); }
+
+        /* Compute view (reused from atlas-party.html) */
+        .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .step {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+            display: flex; align-items: center; gap: 10px; transition: border-color .3s, background .3s;
+        }
+        .dot {
+            flex: none; width: 26px; height: 26px; border-radius: 50%;
+            display: grid; place-items: center; font-size: 12px; font-weight: 600;
+            background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); transition: all .3s;
+        }
+        .step-label { font-size: 13.5px; font-weight: 600; }
+        .step-hint { font-size: 12px; color: var(--muted); }
+        .step.active { border-color: var(--accent); }
+        .step.active .dot { background: var(--accent); color: #fff; border-color: var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+        .step.done .dot { background: var(--accent-2); color: #fff; border-color: var(--accent-2); }
+        .step.failed { border-color: var(--danger); }
+        .step.failed .dot { background: var(--danger); color: #fff; border-color: var(--danger); }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(91, 91, 214, 0.45); } 50% { box-shadow: 0 0 0 6px rgba(91, 91, 214, 0); } }
+        .grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 20px; align-items: start; }
+        .result-body { padding: 26px 22px 24px; text-align: center; }
+        .result-kicker { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+        .result-value { font-size: 72px; font-weight: 700; line-height: 1; letter-spacing: -2px; margin: 6px 0 12px; color: var(--muted); transition: color .4s; }
+        .result-value.ok { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .result-value.none { color: var(--danger); font-size: 40px; letter-spacing: 0; }
+        .result-text { font-size: 15px; font-weight: 500; min-height: 22px; }
+        .spinner { width: 44px; height: 44px; margin: 14px auto 18px; border-radius: 50%; border: 3px solid var(--surface-2); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #status {
+            font-size: 13px; font-weight: 500; color: var(--text); text-transform: none; letter-spacing: 0;
+            display: flex; align-items: center; gap: 8px; max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        #status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+        body.is-done #status::before { background: var(--accent-2); }
+        body.is-error #status::before { background: var(--danger); }
+        body.is-error #status { color: var(--danger); }
+        .term { background: var(--term-bg); }
+        .term .card-head { border-bottom-color: rgba(255, 255, 255, 0.06); color: var(--term-muted); }
+        .lights { display: flex; gap: 6px; }
+        .lights i { width: 10px; height: 10px; border-radius: 50%; display: block; background: #3a4060; }
+        .lights i:nth-child(1) { background: #ff5f57; }
+        .lights i:nth-child(2) { background: #febc2e; }
+        .lights i:nth-child(3) { background: #28c840; }
+        #output {
+            display: block; width: 100%; height: 300px; padding: 16px 18px; background: transparent;
+            color: var(--term-text); font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+            font-size: 13.5px; line-height: 1.6; outline: 0; border: none; resize: none;
+        }
+        details.log { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+        details.log summary { cursor: pointer; list-style: none; padding: 12px 18px; font-size: 12.5px; font-weight: 500; color: var(--term-muted); user-select: none; }
+        details.log summary::-webkit-details-marker { display: none; }
+        details.log summary::before { content: "▸ "; }
+        details.log[open] summary::before { content: "▾ "; }
+        #syslog {
+            margin: 0; max-height: 180px; overflow: auto; padding: 0 18px 14px;
+            font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+            font-size: 12px; line-height: 1.55; color: var(--term-muted); white-space: pre-wrap; word-break: break-word;
+        }
+        footer { margin-top: 26px; text-align: center; font-size: 12.5px; color: var(--muted); }
+        @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .steps { grid-template-columns: repeat(2, 1fr); } .form-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .steps { grid-template-columns: 1fr; } .result-value { font-size: 56px; } #output { height: 240px; } .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            </div>
+            <div>
+                <div class="brand-name">webSPDZ</div>
+                <div class="brand-sub">Secure multiparty computation in the browser</div>
+            </div>
+        </div>
+        <div class="chips">
+            <span class="chip">Protocol <b id="chip-protocol">ATLAS</b></span>
+            <span class="chip">Party <b id="chip-party">—</b></span>
+            <span class="chip">Parties <b id="chip-n">—</b></span>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 id="hero-title">Join the <span>matching lobby</span></h1>
+        <p>Everyone opens this same page. Once all participants have typed their input and marked themselves ready, the
+           computation starts automatically — no links to copy, no parameters to paste.</p>
+    </section>
+
+    <!-- ===================== Lobby view ===================== -->
+    <section id="lobby-view">
+        <div class="room-row">
+            <span>Room: <b id="room-name">—</b></span>
+            <a id="change-room">join a different room</a>
+        </div>
+
+        <div class="error-box" id="lobby-error"></div>
+
+        <div class="card">
+            <div class="card-head"><span>Seats</span></div>
+            <div class="card-body">
+                <div class="seats" id="seats"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head"><span>Your private input</span></div>
+            <div class="card-body">
+                <p class="hint" style="margin-top:0">4 skill values, one per field. The threshold inside the program is
+                   T = 10 — above is surplus, below is deficit.</p>
+                <div class="form-grid">
+                    <div><label for="skill-0">Skill 1</label><input id="skill-0" type="number" step="1"></div>
+                    <div><label for="skill-1">Skill 2</label><input id="skill-1" type="number" step="1"></div>
+                    <div><label for="skill-2">Skill 3</label><input id="skill-2" type="number" step="1"></div>
+                    <div><label for="skill-3">Skill 4</label><input id="skill-3" type="number" step="1"></div>
+                </div>
+                <button class="primary" id="ready-btn" disabled>I'm ready</button>
+                <p class="hint" id="ready-hint"></p>
+                <div class="privacy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Your 4 values stay in this browser. Only a "ready" signal is sent to the server — never the values themselves.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== Compute view (hidden until all ready) ===================== -->
+    <div id="compute-view" hidden>
+        <section class="steps" aria-label="Progress">
+            <div class="step" id="step-load"><div class="dot">1</div><div><div class="step-label">Load</div><div class="step-hint">Download runtime</div></div></div>
+            <div class="step" id="step-connect"><div class="dot">2</div><div><div class="step-label">Connect</div><div class="step-hint">Peer-to-peer channels</div></div></div>
+            <div class="step" id="step-compute"><div class="dot">3</div><div><div class="step-label">Compute</div><div class="step-hint">Secure protocol</div></div></div>
+            <div class="step" id="step-result"><div class="dot">4</div><div><div class="step-label">Result</div><div class="step-hint">Private output</div></div></div>
+        </section>
+
+        <main class="grid">
+            <section class="card">
+                <div class="card-head"><span>Your result</span></div>
+                <div class="result-body">
+                    <div class="result-kicker" id="result-kicker">Waiting for the computation…</div>
+                    <div class="spinner" id="spinner"></div>
+                    <div class="result-value" id="result-value" hidden></div>
+                    <div class="result-text" id="result-text"></div>
+                </div>
+            </section>
+
+            <section class="card term">
+                <div class="card-head">
+                    <div id="status">webSPDZ</div>
+                    <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+                </div>
+                <textarea id="output" rows="8" readonly spellcheck="false"></textarea>
+                <details class="log">
+                    <summary>System log</summary>
+                    <pre id="syslog"></pre>
+                </details>
+            </section>
+        </main>
+    </div>
+
+    <footer>Built with webSPDZ · MP-SPDZ compiled to WebAssembly · WebRTC peer-to-peer</footer>
+</div>
+
+<script>
+(function () {
+    var $ = function (id) { return document.getElementById(id); };
+
+    // ---- Room selection -----------------------------------------------
+    var qp = new URLSearchParams(window.location.search);
+    var room = qp.get('room') || 'atlas-demo';
+    $('room-name').textContent = room;
+    $('change-room').addEventListener('click', function () {
+        var next = prompt('Room name to join:', room);
+        if (next) window.location.search = '?room=' + encodeURIComponent(next);
+    });
+
+    // ---- State -----------------------------------------------------------
+    var myIndex = null, mySize = 0, myT = '1', myProgram = 'surplus_matching_private';
+    var amReady = false;
+
+    function showError(msg) {
+        var box = $('lobby-error');
+        if (!msg) { box.className = 'error-box'; box.textContent = ''; return; }
+        box.className = 'error-box show';
+        box.textContent = msg;
+    }
+
+    function renderSeats(connectedCount, readyArr) {
+        var seats = $('seats');
+        seats.innerHTML = '';
+        for (var i = 0; i < mySize; i++) {
+            var filled = i < connectedCount || (readyArr && readyArr[i]);
+            // We don't know exactly *which* indices are filled from count alone
+            // once someone has left and rejoined a hole, but for the common
+            // "everyone joins once" case, connectedCount fills in order.
+        }
+        // Render from the authoritative ready[] array length, which always
+        // matches the room size and tells us per-seat state directly.
+        var arr = readyArr || [];
+        for (var i = 0; i < mySize; i++) {
+            var seat = document.createElement('div');
+            seat.className = 'seat';
+            var known = i < connectedCount;
+            if (known) seat.classList.add('filled');
+            if (arr[i]) seat.classList.add('ready');
+            if (i === myIndex) seat.classList.add('me');
+            var label = document.createElement('div');
+            label.className = 'seat-label';
+            label.textContent = 'P' + i + (i === myIndex ? ' (you)' : '');
+            var state = document.createElement('div');
+            state.className = 'seat-state';
+            state.textContent = arr[i] ? 'Ready' : (known ? 'Joined' : 'Empty');
+            seat.appendChild(label);
+            seat.appendChild(state);
+            seats.appendChild(seat);
+        }
+    }
+
+    // ---- WebSocket lobby protocol -----------------------------------------
+    var ws = new WebSocket('wss://' + window.location.hostname + ':8080');
+
+    ws.addEventListener('open', function () {
+        ws.send(JSON.stringify({
+            type: 'lobby_join',
+            room: room,
+            size: 4,
+            t: '1',
+            program: 'surplus_matching_private'
+        }));
+    });
+
+    ws.addEventListener('error', function () {
+        showError('Could not reach the signaling server at wss://' + window.location.hostname + ':8080 — is it running?');
+    });
+
+    ws.addEventListener('message', function (ev) {
+        var data;
+        try { data = JSON.parse(ev.data); } catch (e) { return; }
+
+        switch (data.type) {
+            case 'lobby_assigned':
+                myIndex = data.index;
+                mySize = data.size;
+                myT = data.t;
+                myProgram = data.program;
+                $('chip-party').textContent = 'P' + myIndex;
+                $('chip-n').textContent = mySize;
+                $('ready-btn').disabled = false;
+                showError(null);
+                renderSeats(1, []);
+                break;
+
+            case 'lobby_status':
+                if (mySize === 0) mySize = data.size;
+                renderSeats(data.connected, data.ready);
+                break;
+
+            case 'lobby_error':
+                showError(data.message);
+                break;
+
+            case 'lobby_start':
+                startCompute(data.size, data.t, data.program);
+                break;
+        }
+    });
+
+    // ---- Ready button ------------------------------------------------------
+    $('ready-btn').addEventListener('click', function () {
+        if (!amReady) {
+            var values = [];
+            for (var i = 0; i < 4; i++) {
+                var raw = $('skill-' + i).value;
+                var n = parseInt(raw, 10);
+                if (raw === '' || isNaN(n)) {
+                    showError('Fill in all 4 skill values with whole numbers before marking ready.');
+                    return;
+                }
+                values.push(n);
+            }
+            showError(null);
+            window.__mySkillValues = values; // kept in memory only, never sent over ws
+            amReady = true;
+            $('ready-btn').textContent = 'Cancel ready';
+            $('ready-btn').classList.add('is-ready');
+            $('ready-hint').textContent = 'Waiting for the other participants…';
+            [0, 1, 2, 3].forEach(function (i) { $('skill-' + i).disabled = true; });
+        } else {
+            amReady = false;
+            $('ready-btn').textContent = 'I’m ready';
+            $('ready-btn').classList.remove('is-ready');
+            $('ready-hint').textContent = '';
+            [0, 1, 2, 3].forEach(function (i) { $('skill-' + i).disabled = false; });
+        }
+        ws.send(JSON.stringify({ type: 'lobby_ready', ready: amReady }));
+    });
+
+    // ---- Compute view: load atlas-party.js and start this party -----------
+    var order = ['load', 'connect', 'compute', 'result'];
+    var currentStage = -1;
+    function stage(name) {
+        var idx = order.indexOf(name);
+        if (idx <= currentStage) return;
+        currentStage = idx;
+        order.forEach(function (s, i) {
+            var el = $('step-' + s);
+            el.classList.toggle('done', i < idx || (name === 'result' && i === idx));
+            el.classList.toggle('active', i === idx && name !== 'result');
+        });
+    }
+    function fail() {
+        document.body.classList.add('is-error');
+        if (currentStage >= 0) $('step-' + order[currentStage]).classList.add('failed');
+        $('spinner').hidden = true;
+        $('result-kicker').textContent = 'The computation stopped with an error.';
+        $('result-text').textContent = 'See the system log or the JavaScript console.';
+    }
+    function result(code) {
+        stage('result');
+        document.body.classList.add('is-done');
+        var v = $('result-value');
+        $('spinner').hidden = true;
+        v.hidden = false;
+        if (code === -1) {
+            v.className = 'result-value none';
+            v.textContent = 'No match';
+            $('result-kicker').textContent = 'Recommended partner';
+            $('result-text').textContent = 'No useful partner was found for this party.';
+        } else {
+            v.className = 'result-value ok';
+            v.textContent = 'P' + code;
+            $('result-kicker').textContent = 'Recommended partner';
+            $('result-text').textContent = 'Your best partner is participant ' + code + '.';
+        }
+    }
+    function onOut(line) {
+        var m = /PARTNER CODE\s*=\s*(-?\d+)/i.exec(line);
+        if (m) result(parseInt(m[1], 10));
+    }
+    function onErr(line) {
+        var log = $('syslog');
+        log.textContent += line + '\n';
+        log.scrollTop = log.scrollHeight;
+        if (/All clients connected/i.test(line)) stage('compute');
+        else if (/DataChannel|Starting|connect/i.test(line)) stage('connect');
+    }
+
+    function startCompute(size, t, program) {
+        $('lobby-view').hidden = true;
+        $('compute-view').hidden = false;
+        stage('load');
+
+        var outputElement = $('output');
+        var statusElement = $('status');
+
+        window.Module = {
+            noInitialRun: true,
+            print: (function () {
+                outputElement.value = '';
+                return function () {
+                    var line = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(line);
+                    outputElement.value += line + '\n';
+                    outputElement.scrollTop = outputElement.scrollHeight;
+                    try { onOut(line); } catch (e) {}
+                };
+            })(),
+            printErr: function () {
+                var line = Array.prototype.slice.call(arguments).join(' ');
+                console.error(line);
+                try { onErr(line); } catch (e) {}
+            },
+            setStatus: function (text) {
+                if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+                if (text !== Module.setStatus.last.text) {
+                    Module.setStatus.last.time = Date.now();
+                    Module.setStatus.last.text = text;
+                    statusElement.innerHTML = text;
+                    if (text === '') { statusElement.textContent = 'Running'; stage('connect'); }
+                }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function (left) {
+                Module.totalDependencies = Math.max(Module.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'All downloads complete.');
+            }
+        };
+        window.Module.setStatus('Downloading...');
+        window.onerror = function () {
+            window.Module.setStatus('Exception thrown, see JavaScript console');
+            try { fail(); } catch (e) {}
+            window.Module.setStatus = function (t) { if (t) console.error('[post-exception status] ' + t); };
+        };
+
+        var script = document.createElement('script');
+        script.src = 'atlas-party.js';
+        script.async = true;
+        script.onload = function () {
+            var args = ['-N', String(size), '-T', String(t), '-w', '0', String(myIndex), program, '-OF', '.'];
+            var inputText = window.__mySkillValues.join('\n') + '\n';
+            var inputFiles = {};
+            inputFiles['Player-Data/Input-P' + myIndex + '-0'] = inputText;
+
+            (function waitForHook() {
+                if (typeof window.webSPDZStartParty === 'function') {
+                    window.webSPDZStartParty(args, inputFiles);
+                } else {
+                    setTimeout(waitForHook, 20);
+                }
+            })();
+        };
+        document.body.appendChild(script);
+    }
+})();
+</script>
+</body>
+</html>

@@ -22,7 +22,7 @@ httpsServer.listen(args[3], args[2], () => {
 // Create the WebSocket server on top of the HTTPS server
 const wss = new ws.Server({ server: httpsServer });
 
-//all connected to the server users 
+//all connected to the server users
 var users = new Map();
 var currNumPlayers = new Map();
 var userNames = new Set();
@@ -30,7 +30,59 @@ var userGroups = new Set();
 
 //number of players to connect
 var totalNumPlayers = 0;
-  
+
+// --- Lobby protocol -------------------------------------------------------
+// Independent of the login/offer/answer/candidate WebRTC handshake above —
+// this only coordinates party-slot assignment and readiness for a UI lobby
+// before the WASM module's own networking (the code above) ever connects.
+// Never carries player input values, only room settings and ready signals.
+// room -> { size, t, program, slots: [connection|null,...], ready: [bool,...] }
+var lobbies = new Map();
+
+function lobbyStatus(lobby) {
+   return {
+      type: "lobby_status",
+      size: lobby.size,
+      connected: lobby.slots.filter(function (s) { return s != null; }).length,
+      ready: lobby.ready.slice()
+   };
+}
+
+function broadcastLobby(lobby, message) {
+   lobby.slots.forEach(function (conn) {
+      if (conn != null) sendTo(conn, message);
+   });
+}
+
+function maybeStartLobby(room, lobby) {
+   var full = lobby.slots.every(function (s) { return s != null; });
+   var allReady = lobby.ready.every(Boolean);
+   if (full && allReady) {
+      broadcastLobby(lobby, {
+         type: "lobby_start",
+         size: lobby.size,
+         t: lobby.t,
+         program: lobby.program
+      });
+   }
+}
+
+function lobbyLeave(connection) {
+   if (!connection.lobbyRoom) return;
+   var lobby = lobbies.get(connection.lobbyRoom);
+   if (!lobby) return;
+   var idx = connection.lobbyIndex;
+   if (lobby.slots[idx] === connection) {
+      lobby.slots[idx] = null;
+      lobby.ready[idx] = false;
+   }
+   if (lobby.slots.every(function (s) { return s == null; })) {
+      lobbies.delete(connection.lobbyRoom);
+   } else {
+      broadcastLobby(lobby, lobbyStatus(lobby));
+   }
+}
+
 wss.on('connection', function(connection) {
    connection.on('message', function(message) {	
       var data; 
@@ -141,17 +193,62 @@ wss.on('connection', function(connection) {
                console.log("Candidate not sent");
             break;
 	
-         default: 
-            sendTo(connection, { 
-               type: "error", 
-               message: "Unknown message type: " + data.type 
-            }); 
-            break; 
-      }  
-   });  
-	
+         case "lobby_join": {
+            var room = String(data.room || "default");
+            var lobby = lobbies.get(room);
+            if (!lobby) {
+               var size = Math.max(1, parseInt(data.size, 10) || 4);
+               lobby = {
+                  size: size,
+                  t: data.t != null ? String(data.t) : "1",
+                  program: String(data.program || "surplus_matching_private"),
+                  slots: Array(size).fill(null),
+                  ready: Array(size).fill(false)
+               };
+               lobbies.set(room, lobby);
+            }
+            var freeIndex = lobby.slots.indexOf(null);
+            if (freeIndex === -1) {
+               sendTo(connection, { type: "lobby_error", message: "Room '" + room + "' is full." });
+               break;
+            }
+            lobby.slots[freeIndex] = connection;
+            connection.lobbyRoom = room;
+            connection.lobbyIndex = freeIndex;
+            sendTo(connection, {
+               type: "lobby_assigned",
+               index: freeIndex,
+               size: lobby.size,
+               t: lobby.t,
+               program: lobby.program
+            });
+            broadcastLobby(lobby, lobbyStatus(lobby));
+            console.log("lobby_join: room=" + room + " index=" + freeIndex + "/" + lobby.size);
+            break;
+         }
+
+         case "lobby_ready": {
+            if (!connection.lobbyRoom) break;
+            var lobby = lobbies.get(connection.lobbyRoom);
+            if (!lobby) break;
+            lobby.ready[connection.lobbyIndex] = !!data.ready;
+            broadcastLobby(lobby, lobbyStatus(lobby));
+            maybeStartLobby(connection.lobbyRoom, lobby);
+            break;
+         }
+
+         default:
+            sendTo(connection, {
+               type: "error",
+               message: "Unknown message type: " + data.type
+            });
+            break;
+      }
+   });
+
    // when user exits/closes the browser window or established webrtc connections
-   connection.on("close", function() { 
+   connection.on("close", function() {
+      lobbyLeave(connection);
       if(connection.name) {
          var group = connection.name.split('/')[0];
          var name = connection.name.split('/')[1];
