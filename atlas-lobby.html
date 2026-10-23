@@ -1,46 +1,28 @@
 <!doctype html>
-<html lang="en-us">
+<html lang="es">
 <head>
     <meta charset="utf-8">
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>webSPDZ · ATLAS lobby</title>
+    <title>Surplus · Encuentra tu mejor aliado</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f5f6fa;
-            --bg-glow-1: rgba(99, 102, 241, 0.16);
-            --bg-glow-2: rgba(20, 184, 166, 0.14);
+            --bg: #f3f4fb;
             --surface: #ffffff;
-            --surface-2: #f0f2f7;
-            --border: #e2e5ee;
-            --text: #141826;
-            --muted: #5d6478;
+            --surface-2: #f3f4fb;
+            --border: #e5e6f2;
+            --text: #171933;
+            --muted: #6b7088;
             --accent: #5b5bd6;
             --accent-2: #14a38b;
+            --accent-soft: #eef0fd;
             --danger: #d64545;
-            --term-bg: #0f1220;
-            --term-text: #d7dcf0;
-            --term-muted: #7c85a6;
-            --shadow: 0 1px 2px rgba(20, 24, 38, 0.04), 0 12px 32px rgba(20, 24, 38, 0.08);
-        }
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) {
-                --bg: #0b0d16;
-                --bg-glow-1: rgba(99, 102, 241, 0.20);
-                --bg-glow-2: rgba(20, 184, 166, 0.12);
-                --surface: #141826;
-                --surface-2: #1b2033;
-                --border: #262c42;
-                --text: #e9ecf7;
-                --muted: #9099b5;
-                --accent: #8b8cf5;
-                --accent-2: #3fd1b3;
-                --danger: #f07575;
-                --term-bg: #090b13;
-                --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
-            }
+            --sidebar-bg: #12142a;
+            --sidebar-text: #c9cbe0;
+            --sidebar-active: #5b5bd6;
+            --shadow: 0 1px 2px rgba(23, 25, 51, 0.04), 0 10px 28px rgba(23, 25, 51, 0.06);
         }
         * { box-sizing: border-box; }
         body {
@@ -48,270 +30,470 @@
             min-height: 100vh;
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             color: var(--text);
-            background:
-                radial-gradient(900px 500px at 10% -10%, var(--bg-glow-1), transparent 60%),
-                radial-gradient(800px 500px at 110% 10%, var(--bg-glow-2), transparent 60%),
-                var(--bg);
+            background: var(--bg);
             -webkit-font-smoothing: antialiased;
         }
-        .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 16px 48px; }
+        .app { display: flex; min-height: 100vh; }
 
-        header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
-        .brand { display: flex; align-items: center; gap: 12px; }
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            width: 240px; flex: none;
+            background: var(--sidebar-bg); color: var(--sidebar-text);
+            display: flex; flex-direction: column;
+            padding: 22px 16px;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 22px; }
         .brand-mark {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 36px; height: 36px; border-radius: 10px;
             display: grid; place-items: center;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            color: #fff; box-shadow: 0 6px 18px rgba(91, 91, 214, 0.35);
+            color: #fff; flex: none;
         }
-        .brand-name { font-weight: 700; font-size: 20px; letter-spacing: 0.5px; }
-        .brand-sub { font-size: 13px; color: var(--muted); }
-        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-        .chip {
-            font-size: 12.5px; font-weight: 500; padding: 6px 12px; border-radius: 999px;
-            background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+        .brand-name { font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -.2px; }
+        .brand-sub { font-size: 10.5px; color: #8c8fb5; }
+        nav.nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 10px 12px; border-radius: 12px;
+            color: var(--sidebar-text); cursor: pointer; user-select: none;
+            font-size: 13.5px; font-weight: 600;
+            text-decoration: none;
         }
-        .chip b { color: var(--text); font-weight: 600; }
+        .nav-item .nav-icon { width: 20px; height: 20px; flex: none; opacity: .85; }
+        .nav-item .nav-hint { display: block; font-size: 10.5px; font-weight: 500; color: #80839f; }
+        .nav-item.active { background: var(--sidebar-active); color: #fff; }
+        .nav-item.active .nav-hint { color: #d9d9ff; }
+        .nav-item.disabled { opacity: .45; cursor: default; }
+        .nav-item.disabled .soon {
+            margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: .3px;
+            background: rgba(255,255,255,.08); border-radius: 999px; padding: 2px 7px;
+        }
+        .sidebar-globe {
+            flex: 1; min-height: 80px; display: flex; align-items: center; justify-content: center;
+            opacity: .8;
+        }
+        .sidebar-footer { font-size: 11px; color: #9699ba; line-height: 1.5; padding: 0 6px; }
+        .sidebar-footer .tag { font-weight: 700; color: #d7d9f0; }
+        .sidebar-mini-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .sidebar-mini-list span { display: flex; align-items: center; gap: 7px; }
+        .sidebar-mini-list i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); flex: none; }
 
-        .hero { margin-bottom: 24px; }
-        .hero h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 36px); line-height: 1.15; letter-spacing: -0.5px; }
-        .hero h1 span {
-            background: linear-gradient(90deg, var(--accent), var(--accent-2));
-            -webkit-background-clip: text; background-clip: text; color: transparent;
+        /* ---------- Main ---------- */
+        .main { flex: 1; min-width: 0; padding: 26px 32px 40px; }
+        .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+        .topbar h1 { margin: 0 0 4px; font-size: 25px; font-weight: 800; letter-spacing: -.3px; }
+        .topbar p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 560px; }
+        .top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .pill {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+            padding: 8px 14px; font-size: 12.5px; font-weight: 600; box-shadow: var(--shadow);
         }
-        .hero p { margin: 0; color: var(--muted); max-width: 680px; line-height: 1.55; }
+        select.country-select {
+            appearance: none; border: none; background: transparent; font: inherit; font-weight: 700;
+            color: var(--text); cursor: pointer;
+        }
+        .secure-pill { color: var(--accent-2); }
+        .secure-pill small { display: block; font-weight: 500; color: var(--muted); font-size: 10px; }
 
+        /* ---------- Cards ---------- */
         .card {
             background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
-            box-shadow: var(--shadow); overflow: hidden;
+            box-shadow: var(--shadow); overflow: hidden; margin-bottom: 18px;
         }
-        .card-head {
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            padding: 14px 18px; border-bottom: 1px solid var(--border);
-            font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px;
+        .card-pad { padding: 20px 22px; }
+        .card-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .step-num {
+            width: 24px; height: 24px; border-radius: 50%; flex: none;
+            background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+            display: grid; place-items: center;
         }
-        .card-body { padding: 20px 22px 22px; }
+        .card-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
 
-        /* Lobby-specific */
-        #lobby-view { display: grid; gap: 18px; }
-        .room-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-        .room-row a { color: var(--accent); cursor: pointer; text-decoration: underline; }
-        .seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
-        .seat {
-            border: 1px solid var(--border); border-radius: 14px; padding: 12px;
-            background: var(--surface-2); text-align: center; transition: border-color .2s, background .2s;
+        .columns { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; align-items: start; }
+        @media (max-width: 980px) { .columns { grid-template-columns: 1fr; } }
+
+        /* ---------- Skill sliders ---------- */
+        .skill-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+        .skill-row:last-child { border-bottom: none; }
+        .skill-icon {
+            width: 42px; height: 42px; border-radius: 12px; flex: none;
+            display: grid; place-items: center; color: #fff;
         }
-        .seat .seat-label { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
-        .seat .seat-state { font-size: 13.5px; font-weight: 600; }
-        .seat.filled { border-color: var(--border); background: var(--surface); }
-        .seat.ready { border-color: var(--accent-2); }
-        .seat.ready .seat-state { color: var(--accent-2); }
-        .seat.me { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(91,91,214,.15) inset; }
-        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
-        .form-grid label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-        .form-grid input {
-            width: 100%; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border);
-            background: var(--surface); color: var(--text); font-size: 14px; font-family: inherit;
+        .skill-body { flex: 1; min-width: 0; }
+        .skill-name { font-weight: 700; font-size: 13.5px; }
+        .skill-desc { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+        .skill-slider-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .skill-slider-row input[type=range] {
+            flex: 1; accent-color: var(--accent); height: 6px; cursor: pointer;
         }
-        .form-grid input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+        .skill-num {
+            width: 62px; flex: none; text-align: center; border: 1px solid var(--border); border-radius: 9px;
+            padding: 6px 4px; font-weight: 700; font-size: 13px; font-family: inherit;
+        }
+        .skill-goal-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 22px; background: var(--surface-2); font-size: 12.5px; font-weight: 600; color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+        .skill-goal-row b { color: var(--text); }
+
         button.primary {
-            appearance: none; border: none; border-radius: 12px; padding: 11px 20px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
+            appearance: none; border: none; border-radius: 12px; padding: 12px 22px; width: 100%;
+            font-size: 14px; font-weight: 700; cursor: pointer;
             background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
         }
         button.primary:disabled { opacity: .5; cursor: not-allowed; }
         button.primary.is-ready { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-        .hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+        .hint-line { font-size: 11.5px; color: var(--muted); margin-top: 9px; text-align: center; }
+
         .error-box {
             border: 1px solid var(--danger); background: rgba(214,69,69,.08); color: var(--danger);
-            border-radius: 10px; padding: 10px 14px; font-size: 13px; display: none;
+            border-radius: 10px; padding: 10px 14px; font-size: 12.5px; display: none; margin-bottom: 14px;
         }
         .error-box.show { display: block; }
-        .privacy {
-            display: flex; gap: 10px; align-items: flex-start; text-align: left;
-            margin: 18px 0 0; padding: 12px 14px; border-radius: 12px;
-            background: var(--surface-2); font-size: 12.5px; color: var(--muted); line-height: 1.5;
-        }
-        .privacy svg { flex: none; margin-top: 1px; color: var(--accent-2); }
 
-        /* Compute view (reused from atlas-party.html) */
-        .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .step {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
-            display: flex; align-items: center; gap: 10px; transition: border-color .3s, background .3s;
+        /* ---------- Right-column info cards ---------- */
+        .info-card { display: flex; gap: 12px; align-items: flex-start; }
+        .info-icon {
+            width: 34px; height: 34px; border-radius: 10px; flex: none;
+            display: grid; place-items: center; background: var(--accent-soft); color: var(--accent);
         }
-        .dot {
-            flex: none; width: 26px; height: 26px; border-radius: 50%;
-            display: grid; place-items: center; font-size: 12px; font-weight: 600;
-            background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); transition: all .3s;
+        .info-card h3 { margin: 0 0 2px; font-size: 13px; font-weight: 700; }
+        .info-card p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+        .my-country-card { display: flex; align-items: center; gap: 12px; }
+        .my-country-flag { font-size: 30px; line-height: 1; }
+        .my-country-card .label { font-size: 11px; color: var(--muted); }
+        .my-country-card .name { font-weight: 700; font-size: 14.5px; }
+        .change-country { margin-left: auto; font-size: 12px; color: var(--accent); font-weight: 700; cursor: pointer; background: none; border: none; font-family: inherit; }
+
+        .stepper { display: flex; flex-direction: column; gap: 0; }
+        .stepper .s-item { display: flex; gap: 12px; padding: 10px 0; position: relative; }
+        .stepper .s-item:not(:last-child)::before {
+            content: ""; position: absolute; left: 12px; top: 34px; bottom: -4px; width: 2px; background: var(--border);
         }
-        .step-label { font-size: 13.5px; font-weight: 600; }
-        .step-hint { font-size: 12px; color: var(--muted); }
-        .step.active { border-color: var(--accent); }
-        .step.active .dot { background: var(--accent); color: #fff; border-color: var(--accent); animation: pulse 1.6s ease-in-out infinite; }
-        .step.done .dot { background: var(--accent-2); color: #fff; border-color: var(--accent-2); }
-        .step.failed { border-color: var(--danger); }
-        .step.failed .dot { background: var(--danger); color: #fff; border-color: var(--danger); }
-        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(91, 91, 214, 0.45); } 50% { box-shadow: 0 0 0 6px rgba(91, 91, 214, 0); } }
-        .grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 20px; align-items: start; }
-        .result-body { padding: 26px 22px 24px; text-align: center; }
-        .result-kicker { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
-        .result-value { font-size: 72px; font-weight: 700; line-height: 1; letter-spacing: -2px; margin: 6px 0 12px; color: var(--muted); transition: color .4s; }
-        .result-value.ok { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .result-value.none { color: var(--danger); font-size: 40px; letter-spacing: 0; }
-        .result-text { font-size: 15px; font-weight: 500; min-height: 22px; }
-        .spinner { width: 44px; height: 44px; margin: 14px auto 18px; border-radius: 50%; border: 3px solid var(--surface-2); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        #status {
-            font-size: 13px; font-weight: 500; color: var(--text); text-transform: none; letter-spacing: 0;
-            display: flex; align-items: center; gap: 8px; max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        .s-dot {
+            width: 25px; height: 25px; border-radius: 50%; flex: none; z-index: 1;
+            display: grid; place-items: center; font-size: 12px; font-weight: 700;
+            background: var(--surface-2); color: var(--muted); border: 1px solid var(--border);
         }
-        #status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-        body.is-done #status::before { background: var(--accent-2); }
-        body.is-error #status::before { background: var(--danger); }
-        body.is-error #status { color: var(--danger); }
-        .term { background: var(--term-bg); }
-        .term .card-head { border-bottom-color: rgba(255, 255, 255, 0.06); color: var(--term-muted); }
-        .lights { display: flex; gap: 6px; }
-        .lights i { width: 10px; height: 10px; border-radius: 50%; display: block; background: #3a4060; }
-        .lights i:nth-child(1) { background: #ff5f57; }
-        .lights i:nth-child(2) { background: #febc2e; }
-        .lights i:nth-child(3) { background: #28c840; }
+        .s-item.done .s-dot { background: var(--accent-2); color: #fff; border-color: var(--accent-2); }
+        .s-item.active .s-dot { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .s-text b { display: block; font-size: 12.5px; }
+        .s-text span { font-size: 11px; color: var(--muted); }
+
+        /* ---------- Seats (join state) ---------- */
+        .seats-mini { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .seat-chip {
+            display: flex; align-items: center; gap: 6px;
+            border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px 5px 6px;
+            font-size: 11.5px; font-weight: 600; background: var(--surface-2);
+        }
+        .seat-chip .flag { font-size: 14px; }
+        .seat-chip.ready { border-color: var(--accent-2); color: var(--accent-2); background: #effaf6; }
+        .seat-chip.me { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+        /* ---------- Result view ---------- */
+        .relation-board {
+            position: relative; height: 300px; border-radius: 16px;
+            background:
+                radial-gradient(420px 220px at 15% 15%, rgba(91,91,214,.10), transparent 60%),
+                radial-gradient(420px 220px at 85% 80%, rgba(20,163,139,.10), transparent 60%),
+                var(--surface-2);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .relation-node {
+            position: absolute; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .relation-node .bubble {
+            width: 54px; height: 54px; border-radius: 50%; background: var(--surface);
+            border: 2px solid var(--border); display: grid; place-items: center; font-size: 26px;
+            box-shadow: var(--shadow); transition: border-color .3s, box-shadow .3s;
+        }
+        .relation-node.me .bubble { border-color: var(--accent); }
+        .relation-node.match .bubble { border-color: var(--accent-2); box-shadow: 0 0 0 5px rgba(20,163,139,.15); }
+        .relation-node .node-label { font-size: 11px; font-weight: 700; background: var(--surface); padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); }
+        .relation-line { position: absolute; pointer-events: none; }
+
+        .result-headline { text-align: center; padding: 6px 0 2px; }
+        .result-headline .kicker { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+        .result-headline .value { font-size: 44px; font-weight: 800; letter-spacing: -1px; }
+        .result-headline .value.ok { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .result-headline .value.none { color: var(--danger); font-size: 28px; }
+        .result-headline .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+        .badge-complement {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: #effaf6; color: var(--accent-2); border-radius: 999px;
+            padding: 3px 10px; font-size: 11px; font-weight: 700; margin-left: 8px;
+        }
+
+        .recap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+        .recap-cell { border: 1px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; background: var(--surface-2); }
+        .recap-cell .v { font-weight: 700; font-size: 14px; }
+        .recap-cell .l { font-size: 10px; color: var(--muted); }
+
+        .meaning-list { display: flex; flex-direction: column; gap: 14px; }
+        .meaning-item { display: flex; gap: 10px; align-items: flex-start; }
+        .meaning-item .info-icon { background: var(--accent-soft); color: var(--accent); }
+        .meaning-item h4 { margin: 0 0 2px; font-size: 13px; font-weight: 700; }
+        .meaning-item p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+        details.tech { font-size: 11.5px; color: var(--muted); }
+        details.tech summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
         #output {
-            display: block; width: 100%; height: 300px; padding: 16px 18px; background: transparent;
-            color: var(--term-text); font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-            font-size: 13.5px; line-height: 1.6; outline: 0; border: none; resize: none;
+            display: block; width: 100%; height: 160px; margin-top: 8px;
+            background: #0f1220; color: #d7dcf0; border-radius: 10px; border: none;
+            font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11.5px; padding: 10px 12px;
+            resize: none;
         }
-        details.log { border-top: 1px solid rgba(255, 255, 255, 0.06); }
-        details.log summary { cursor: pointer; list-style: none; padding: 12px 18px; font-size: 12.5px; font-weight: 500; color: var(--term-muted); user-select: none; }
-        details.log summary::-webkit-details-marker { display: none; }
-        details.log summary::before { content: "▸ "; }
-        details.log[open] summary::before { content: "▾ "; }
-        #syslog {
-            margin: 0; max-height: 180px; overflow: auto; padding: 0 18px 14px;
-            font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
-            font-size: 12px; line-height: 1.55; color: var(--term-muted); white-space: pre-wrap; word-break: break-word;
+        #status { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+
+        @media (max-width: 720px) {
+            .app { flex-direction: column; }
+            .sidebar { width: auto; flex-direction: row; flex-wrap: wrap; align-items: center; }
+            .sidebar-globe, .sidebar-footer { display: none; }
+            nav.nav { flex-direction: row; flex-wrap: wrap; margin-bottom: 0; }
+            .recap-grid { grid-template-columns: repeat(2, 1fr); }
         }
-        footer { margin-top: 26px; text-align: center; font-size: 12.5px; color: var(--muted); }
-        @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .steps { grid-template-columns: repeat(2, 1fr); } .form-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .steps { grid-template-columns: 1fr; } .result-value { font-size: 56px; } #output { height: 240px; } .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-<div class="wrap">
-    <header>
+<div class="app">
+
+    <!-- ======================= Sidebar ======================= -->
+    <aside class="sidebar">
         <div class="brand">
             <div class="brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg>
             </div>
             <div>
-                <div class="brand-name">webSPDZ</div>
-                <div class="brand-sub">Secure multiparty computation in the browser</div>
+                <div class="brand-name">Surplus</div>
+                <div class="brand-sub">Skills without borders</div>
             </div>
         </div>
-        <div class="chips">
-            <span class="chip">Protocol <b id="chip-protocol">ATLAS</b></span>
-            <span class="chip">Party <b id="chip-party">—</b></span>
-            <span class="chip">Parties <b id="chip-n">—</b></span>
+
+        <nav class="nav">
+            <a class="nav-item active" href="atlas-lobby.html">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+                <div><div>Mi país</div><div class="nav-hint">Mis habilidades y recomendación</div></div>
+            </a>
+            <div class="nav-item disabled"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg><div><div>Mapa global</div><div class="nav-hint">Países participantes</div></div><span class="soon">pronto</span></div>
+            <div class="nav-item disabled"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7.3 10.3 16M16 7.3 13.7 16M8.5 6h7"/></svg><div><div>Red de alianzas</div><div class="nav-hint">Conexiones públicas</div></div><span class="soon">pronto</span></div>
+            <a class="nav-item" href="atlas-how-it-works.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div><div>Cómo funciona</div><div class="nav-hint">Tecnología MPC</div></div></a>
+        </nav>
+
+        <div class="sidebar-globe" aria-hidden="true">
+            <svg width="110" height="110" viewBox="0 0 110 110" fill="none">
+                <circle cx="55" cy="55" r="46" stroke="#3a3d66" stroke-width="1.4"/>
+                <circle cx="55" cy="55" r="46" stroke="#5b5bd6" stroke-width="1.4" stroke-dasharray="6 10" opacity=".5"/>
+                <ellipse cx="55" cy="55" rx="46" ry="18" stroke="#3a3d66" stroke-width="1"/>
+                <ellipse cx="55" cy="55" rx="20" ry="46" stroke="#3a3d66" stroke-width="1"/>
+                <circle cx="30" cy="40" r="3" fill="#14a38b"/>
+                <circle cx="75" cy="32" r="3" fill="#5b5bd6"/>
+                <circle cx="68" cy="75" r="3" fill="#5b5bd6"/>
+                <circle cx="35" cy="78" r="3" fill="#14a38b"/>
+            </svg>
         </div>
-    </header>
 
-    <section class="hero">
-        <h1 id="hero-title">Join the <span>matching lobby</span></h1>
-        <p>Everyone opens this same page. Once all participants have typed their input and marked themselves ready, the
-           computation starts automatically — no links to copy, no parameters to paste.</p>
-    </section>
+        <div class="sidebar-footer">
+            <div class="tag">Colaboración segura para<br>un mundo más fuerte.</div>
+            <div class="sidebar-mini-list">
+                <span><i></i> Privacidad</span>
+                <span><i></i> Colaboración</span>
+                <span><i></i> Impacto real</span>
+            </div>
+        </div>
+    </aside>
 
-    <!-- ===================== Lobby view ===================== -->
-    <section id="lobby-view">
-        <div class="room-row">
-            <span>Room: <b id="room-name">—</b></span>
-            <a id="change-room">join a different room</a>
+    <!-- ======================= Main ======================= -->
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1 id="page-title">Encuentra tu mejor aliado</h1>
+                <p id="page-sub">Surplus analiza, de forma privada, qué país complementa mejor tus capacidades.</p>
+            </div>
+            <div class="top-right">
+                <div class="pill">
+                    <span id="my-flag">🏳️</span>
+                    <select class="country-select" id="country-select">
+                        <option value="">Elige tu país</option>
+                        <option value="🇲🇽|México">México</option>
+                        <option value="🇨🇦|Canadá">Canadá</option>
+                        <option value="🇨🇴|Colombia">Colombia</option>
+                        <option value="🇯🇵|Japón">Japón</option>
+                    </select>
+                    <span id="my-seat-label">(P?)</span>
+                </div>
+                <div class="pill secure-pill">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                    <span>Conexión segura<small>Tus datos permanecen privados</small></span>
+                </div>
+            </div>
         </div>
 
         <div class="error-box" id="lobby-error"></div>
 
-        <div class="card">
-            <div class="card-head"><span>Seats</span></div>
-            <div class="card-body">
-                <div class="seats" id="seats"></div>
-            </div>
-        </div>
+        <!-- ================= Skills / lobby view ================= -->
+        <section id="view-skills">
+            <div class="columns">
+                <div>
+                    <div class="card">
+                        <div class="card-pad">
+                            <div class="card-title"><span class="step-num">1</span>Configura tus capacidades</div>
+                            <p class="card-sub">Ingresa un valor del 0 al 20 para cada capacidad. El valor ideal es 10 — más significa excedente, menos significa déficit.</p>
 
-        <div class="card">
-            <div class="card-head"><span>Your private input</span></div>
-            <div class="card-body">
-                <p class="hint" style="margin-top:0">4 skill values, one per field. The threshold inside the program is
-                   T = 10 — above is surplus, below is deficit.</p>
-                <div class="form-grid">
-                    <div><label for="skill-0">Skill 1</label><input id="skill-0" type="number" step="1"></div>
-                    <div><label for="skill-1">Skill 2</label><input id="skill-1" type="number" step="1"></div>
-                    <div><label for="skill-2">Skill 3</label><input id="skill-2" type="number" step="1"></div>
-                    <div><label for="skill-3">Skill 4</label><input id="skill-3" type="number" step="1"></div>
+                            <div id="skills-list"></div>
+                        </div>
+                        <div class="skill-goal-row"><span>Objetivo ideal por capacidad</span><b>10 / 20</b></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-pad">
+                            <div class="card-title"><span class="step-num">2</span>Confirmar y participar</div>
+                            <p class="card-sub">Cuando estés listo, envía tus capacidades para unirte al cálculo privado.</p>
+                            <button class="primary" id="ready-btn" disabled>Guardar y participar</button>
+                            <p class="hint-line" id="ready-hint">Esperando asignación de país…</p>
+                        </div>
+                    </div>
                 </div>
-                <button class="primary" id="ready-btn" disabled>I'm ready</button>
-                <p class="hint" id="ready-hint"></p>
-                <div class="privacy">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span>Your 4 values stay in this browser. Only a "ready" signal is sent to the server — never the values themselves.</span>
+
+                <div>
+                    <div class="card"><div class="card-pad">
+                        <div class="my-country-card">
+                            <div class="my-country-flag" id="side-flag">🏳️</div>
+                            <div>
+                                <div class="label" id="side-seat">P? (Tú)</div>
+                                <div class="name" id="side-country">Sin asignar</div>
+                            </div>
+                        </div>
+                        <div class="seats-mini" id="seats-mini"></div>
+                    </div></div>
+
+                    <div class="card"><div class="card-pad info-card">
+                        <div class="info-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.5.4.9 1.1.9 1.8v.3h5.2v-.3c0-.7.4-1.4.9-1.8A6 6 0 0 0 12 3z"/></svg></div>
+                        <div><h3>Sobre tus valores</h3><p>Representan tus recursos actuales en cada capacidad y se usan en el cálculo privado con ATLAS para encontrar tu mejor aliado.</p></div>
+                    </div></div>
+
+                    <div class="card"><div class="card-pad info-card">
+                        <div class="info-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+                        <div><h3>Privacidad garantizada</h3><p>Tus datos se encriptan y procesan mediante MPC con ATLAS. Ningún otro país puede ver tus capacidades ni tus resultados.</p></div>
+                    </div></div>
+
+                    <div class="card"><div class="card-pad">
+                        <div class="card-title" style="margin-bottom:10px">¿Qué sigue?</div>
+                        <div class="stepper" id="stepper">
+                            <div class="s-item" data-step="1"><div class="s-dot">1</div><div class="s-text"><b>Ingresa tus capacidades</b><span>Completa y guarda el formulario</span></div></div>
+                            <div class="s-item" data-step="2"><div class="s-dot">2</div><div class="s-text"><b>Espera a que todos se unan</b><span id="step2-sub">0/0 conectados</span></div></div>
+                            <div class="s-item" data-step="3"><div class="s-dot">3</div><div class="s-text"><b>Se ejecuta el cálculo privado</b><span>Protocolo ATLAS (MPC)</span></div></div>
+                            <div class="s-item" data-step="4"><div class="s-dot">4</div><div class="s-text"><b>Recibe tu recomendación</b><span>Resultado 100% privado</span></div></div>
+                        </div>
+                    </div></div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- ===================== Compute view (hidden until all ready) ===================== -->
-    <div id="compute-view" hidden>
-        <section class="steps" aria-label="Progress">
-            <div class="step" id="step-load"><div class="dot">1</div><div><div class="step-label">Load</div><div class="step-hint">Download runtime</div></div></div>
-            <div class="step" id="step-connect"><div class="dot">2</div><div><div class="step-label">Connect</div><div class="step-hint">Peer-to-peer channels</div></div></div>
-            <div class="step" id="step-compute"><div class="dot">3</div><div><div class="step-label">Compute</div><div class="step-hint">Secure protocol</div></div></div>
-            <div class="step" id="step-result"><div class="dot">4</div><div><div class="step-label">Result</div><div class="step-hint">Private output</div></div></div>
         </section>
 
-        <main class="grid">
-            <section class="card">
-                <div class="card-head"><span>Your result</span></div>
-                <div class="result-body">
-                    <div class="result-kicker" id="result-kicker">Waiting for the computation…</div>
-                    <div class="spinner" id="spinner"></div>
-                    <div class="result-value" id="result-value" hidden></div>
-                    <div class="result-text" id="result-text"></div>
-                </div>
-            </section>
+        <!-- ================= Result view ================= -->
+        <section id="view-result" hidden>
+            <div class="columns">
+                <div>
+                    <div class="card"><div class="card-pad">
+                        <div class="relation-board" id="relation-board"></div>
+                        <div class="hint-line" style="margin-top:10px">Las posiciones son ilustrativas — no representan ubicación geográfica real.</div>
+                    </div></div>
 
-            <section class="card term">
-                <div class="card-head">
-                    <div id="status">webSPDZ</div>
-                    <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+                    <div class="card"><div class="card-pad">
+                        <div class="card-title" style="margin-bottom:10px">Tus capacidades actuales</div>
+                        <div class="recap-grid" id="recap-grid"></div>
+                    </div></div>
                 </div>
-                <textarea id="output" rows="8" readonly spellcheck="false"></textarea>
-                <details class="log">
-                    <summary>System log</summary>
-                    <pre id="syslog"></pre>
-                </details>
-            </section>
-        </main>
-    </div>
 
-    <footer>Built with webSPDZ · MP-SPDZ compiled to WebAssembly · WebRTC peer-to-peer</footer>
+                <div>
+                    <div class="card"><div class="card-pad">
+                        <div class="result-headline">
+                            <div class="kicker" id="result-kicker">Calculado de forma segura con MPC</div>
+                            <div class="spinner" id="spinner" style="width:40px;height:40px;margin:10px auto;border-radius:50%;border:3px solid var(--surface-2);border-top-color:var(--accent);animation:spin .9s linear infinite"></div>
+                            <div class="value" id="result-value" hidden></div>
+                            <div class="sub" id="result-sub"></div>
+                        </div>
+                    </div></div>
+
+                    <div class="card"><div class="card-pad info-card">
+                        <div class="info-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+                        <div><h3>Privacidad garantizada</h3><p>Solo tú puedes ver esta recomendación. Las capacidades de los demás países permanecen privadas en todo momento.</p></div>
+                    </div></div>
+
+                    <div class="card"><div class="card-pad">
+                        <div class="card-title" style="margin-bottom:10px">¿Qué significa esta alianza?</div>
+                        <div class="meaning-list">
+                            <div class="meaning-item"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><div><h4>Complementa tus capacidades</h4><p>Ayuda a cubrir tus mayores déficits con el excedente de tu aliado.</p></div></div>
+                            <div class="meaning-item"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20V10m6 10V4m6 16v-7"/></svg></div><div><h4>Fortalece tu estrategia</h4><p>Reduce el déficit más alto entre los dos países.</p></div></div>
+                            <div class="meaning-item"><div class="info-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19c0-3 2.9-5.4 6.5-5.4s6.5 2.4 6.5 5.4"/><circle cx="18" cy="8.5" r="2.4"/><path d="M15.8 13.8c2.6.4 4.7 2.3 4.7 5"/></svg></div><div><h4>Más oportunidades</h4><p>Trabajen juntos por una cooperación más fuerte.</p></div></div>
+                        </div>
+                    </div></div>
+                </div>
+            </div>
+
+            <details class="tech">
+                <summary>Detalles técnicos</summary>
+                <div id="status"></div>
+                <textarea id="output" rows="6" readonly spellcheck="false"></textarea>
+            </details>
+        </section>
+    </main>
 </div>
 
 <script>
 (function () {
     var $ = function (id) { return document.getElementById(id); };
 
-    // ---- Room selection -----------------------------------------------
+    // ---- War-scenario skill categories (replace with whatever fits best) ----
+    var SKILLS = [
+        { id: 0, name: 'Defensa', desc: 'Capacidad militar y protección del territorio.', color: '#5b5bd6',
+          icon: '<path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3z"/>' },
+        { id: 1, name: 'Logística', desc: 'Transporte, suministros y cadena de abastecimiento.', color: '#2563eb',
+          icon: '<rect x="2" y="9" width="12" height="8" rx="1.5"/><path d="M14 11h4l3 3v3h-2"/><circle cx="7" cy="18.5" r="1.6"/><circle cx="17.5" cy="18.5" r="1.6"/>' },
+        { id: 2, name: 'Inteligencia', desc: 'Información estratégica y análisis de riesgos.', color: '#14a38b',
+          icon: '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/>' },
+        { id: 3, name: 'Diplomacia', desc: 'Negociación y relaciones con otros países.', color: '#e08a2b',
+          icon: '<path d="M8 12 3 17l1.5 1.5L7 16M8 12l3-3M8 12l3 3M16 12l5 5-1.5 1.5L17 16M16 12l-3-3M16 12l-3 3M11 9l1-1 1 1"/>' }
+    ];
+
     var qp = new URLSearchParams(window.location.search);
     var room = qp.get('room') || 'atlas-demo';
-    $('room-name').textContent = room;
-    $('change-room').addEventListener('click', function () {
-        var next = prompt('Room name to join:', room);
-        if (next) window.location.search = '?room=' + encodeURIComponent(next);
-    });
 
-    // ---- State -----------------------------------------------------------
     var myIndex = null, mySize = 0, myT = '1', myProgram = 'surplus_matching_private';
+    var myCountry = null; // "flag|name"
     var amReady = false;
+    var countries = [];
+
+    // ---- Build the skill sliders ----
+    var skillsList = $('skills-list');
+    SKILLS.forEach(function (s) {
+        var row = document.createElement('div');
+        row.className = 'skill-row';
+        row.innerHTML =
+            '<div class="skill-icon" style="background:' + s.color + '">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + s.icon + '</svg></div>' +
+            '<div class="skill-body">' +
+            '<div class="skill-name">' + s.name + '</div>' +
+            '<div class="skill-desc">' + s.desc + '</div>' +
+            '<div class="skill-slider-row">' +
+            '<input type="range" min="0" max="20" step="1" value="10" id="slider-' + s.id + '">' +
+            '<input type="number" min="0" max="20" step="1" value="10" class="skill-num" id="skill-' + s.id + '">' +
+            '</div></div>';
+        skillsList.appendChild(row);
+    });
+    SKILLS.forEach(function (s) {
+        var slider = $('slider-' + s.id), num = $('skill-' + s.id);
+        slider.addEventListener('input', function () { num.value = slider.value; });
+        num.addEventListener('input', function () {
+            var v = Math.max(0, Math.min(20, parseInt(num.value, 10) || 0));
+            slider.value = v;
+        });
+    });
 
     function showError(msg) {
         var box = $('lobby-error');
@@ -320,52 +502,48 @@
         box.textContent = msg;
     }
 
-    function renderSeats(connectedCount, readyArr) {
-        var seats = $('seats');
-        seats.innerHTML = '';
+    function setStep(n, state) {
+        var el = document.querySelector('.s-item[data-step="' + n + '"]');
+        el.classList.remove('done', 'active');
+        if (state) el.classList.add(state);
+    }
+
+    function flagOf(c) { return c ? c.split('|')[0] : '🏳️'; }
+    function nameOf(c) { return c ? c.split('|')[1] : 'Sin asignar'; }
+
+    function renderSeats() {
+        var mini = $('seats-mini');
+        mini.innerHTML = '';
         for (var i = 0; i < mySize; i++) {
-            var filled = i < connectedCount || (readyArr && readyArr[i]);
-            // We don't know exactly *which* indices are filled from count alone
-            // once someone has left and rejoined a hole, but for the common
-            // "everyone joins once" case, connectedCount fills in order.
-        }
-        // Render from the authoritative ready[] array length, which always
-        // matches the room size and tells us per-seat state directly.
-        var arr = readyArr || [];
-        for (var i = 0; i < mySize; i++) {
-            var seat = document.createElement('div');
-            seat.className = 'seat';
-            var known = i < connectedCount;
-            if (known) seat.classList.add('filled');
-            if (arr[i]) seat.classList.add('ready');
-            if (i === myIndex) seat.classList.add('me');
-            var label = document.createElement('div');
-            label.className = 'seat-label';
-            label.textContent = 'P' + i + (i === myIndex ? ' (you)' : '');
-            var state = document.createElement('div');
-            state.className = 'seat-state';
-            state.textContent = arr[i] ? 'Ready' : (known ? 'Joined' : 'Empty');
-            seat.appendChild(label);
-            seat.appendChild(state);
-            seats.appendChild(seat);
+            var chip = document.createElement('div');
+            chip.className = 'seat-chip' + (i === myIndex ? ' me' : '');
+            chip.innerHTML = '<span class="flag">' + flagOf(countries[i]) + '</span> P' + i;
+            mini.appendChild(chip);
         }
     }
 
-    // ---- WebSocket lobby protocol -----------------------------------------
+    // ---- Country selection ----
+    $('country-select').addEventListener('change', function () {
+        myCountry = this.value || null;
+        updateCountryUI();
+        if (myIndex !== null) ws.send(JSON.stringify({ type: 'lobby_set_country', country: myCountry }));
+    });
+
+    function updateCountryUI() {
+        $('my-flag').textContent = flagOf(myCountry);
+        $('side-flag').textContent = flagOf(myCountry);
+        $('side-country').textContent = nameOf(myCountry);
+        $('country-select').value = myCountry || '';
+    }
+
+    // ---- WebSocket lobby protocol ----
     var ws = new WebSocket('wss://' + window.location.hostname + ':8080');
 
     ws.addEventListener('open', function () {
-        ws.send(JSON.stringify({
-            type: 'lobby_join',
-            room: room,
-            size: 4,
-            t: '1',
-            program: 'surplus_matching_private'
-        }));
+        ws.send(JSON.stringify({ type: 'lobby_join', room: room, size: 4, t: '1', program: 'surplus_matching_private' }));
     });
-
     ws.addEventListener('error', function () {
-        showError('Could not reach the signaling server at wss://' + window.location.hostname + ':8080 — is it running?');
+        showError('No se pudo conectar al servidor de señalización en wss://' + window.location.hostname + ':8080 — ¿está corriendo?');
     });
 
     ws.addEventListener('message', function (ev) {
@@ -378,16 +556,22 @@
                 mySize = data.size;
                 myT = data.t;
                 myProgram = data.program;
-                $('chip-party').textContent = 'P' + myIndex;
-                $('chip-n').textContent = mySize;
+                countries = data.countries || [];
+                $('my-seat-label').textContent = '(P' + myIndex + ')';
+                $('side-seat').textContent = 'P' + myIndex + ' (Tú)';
                 $('ready-btn').disabled = false;
+                $('ready-hint').textContent = 'Completa tus capacidades y pulsa guardar.';
                 showError(null);
-                renderSeats(1, []);
+                renderSeats();
+                $('step2-sub').textContent = '1/' + mySize + ' conectados';
                 break;
 
             case 'lobby_status':
                 if (mySize === 0) mySize = data.size;
-                renderSeats(data.connected, data.ready);
+                countries = data.countries || countries;
+                renderSeats();
+                $('step2-sub').textContent = data.connected + '/' + data.size + ' conectados';
+                if (data.connected >= data.size) setStep(2, 'done'); else setStep(2, 'active');
                 break;
 
             case 'lobby_error':
@@ -400,90 +584,125 @@
         }
     });
 
-    // ---- Ready button ------------------------------------------------------
+    // ---- Ready button ----
     $('ready-btn').addEventListener('click', function () {
         if (!amReady) {
             var values = [];
             for (var i = 0; i < 4; i++) {
-                var raw = $('skill-' + i).value;
-                var n = parseInt(raw, 10);
-                if (raw === '' || isNaN(n)) {
-                    showError('Fill in all 4 skill values with whole numbers before marking ready.');
-                    return;
-                }
+                var n = parseInt($('skill-' + i).value, 10);
+                if (isNaN(n)) { showError('Completa las 4 capacidades con números.'); return; }
                 values.push(n);
             }
             showError(null);
-            window.__mySkillValues = values; // kept in memory only, never sent over ws
+            window.__mySkillValues = values; // stays in memory only, never sent over ws
             amReady = true;
-            $('ready-btn').textContent = 'Cancel ready';
+            $('ready-btn').textContent = 'Cancelar';
             $('ready-btn').classList.add('is-ready');
-            $('ready-hint').textContent = 'Waiting for the other participants…';
-            [0, 1, 2, 3].forEach(function (i) { $('skill-' + i).disabled = true; });
+            $('ready-hint').textContent = 'Esperando a los demás países…';
+            setStep(1, 'done');
+            setStep(3, 'active');
+            SKILLS.forEach(function (s) { $('skill-' + s.id).disabled = true; $('slider-' + s.id).disabled = true; });
         } else {
             amReady = false;
-            $('ready-btn').textContent = 'I’m ready';
+            $('ready-btn').textContent = 'Guardar y participar';
             $('ready-btn').classList.remove('is-ready');
-            $('ready-hint').textContent = '';
-            [0, 1, 2, 3].forEach(function (i) { $('skill-' + i).disabled = false; });
+            $('ready-hint').textContent = 'Completa tus capacidades y pulsa guardar.';
+            setStep(1, null);
+            setStep(3, null);
+            SKILLS.forEach(function (s) { $('skill-' + s.id).disabled = false; $('slider-' + s.id).disabled = false; });
         }
         ws.send(JSON.stringify({ type: 'lobby_ready', ready: amReady }));
     });
 
-    // ---- Compute view: load atlas-party.js and start this party -----------
-    var order = ['load', 'connect', 'compute', 'result'];
-    var currentStage = -1;
-    function stage(name) {
-        var idx = order.indexOf(name);
-        if (idx <= currentStage) return;
-        currentStage = idx;
-        order.forEach(function (s, i) {
-            var el = $('step-' + s);
-            el.classList.toggle('done', i < idx || (name === 'result' && i === idx));
-            el.classList.toggle('active', i === idx && name !== 'result');
-        });
-    }
-    function fail() {
-        document.body.classList.add('is-error');
-        if (currentStage >= 0) $('step-' + order[currentStage]).classList.add('failed');
-        $('spinner').hidden = true;
-        $('result-kicker').textContent = 'The computation stopped with an error.';
-        $('result-text').textContent = 'See the system log or the JavaScript console.';
-    }
-    function result(code) {
-        stage('result');
-        document.body.classList.add('is-done');
-        var v = $('result-value');
-        $('spinner').hidden = true;
-        v.hidden = false;
-        if (code === -1) {
-            v.className = 'result-value none';
-            v.textContent = 'No match';
-            $('result-kicker').textContent = 'Recommended partner';
-            $('result-text').textContent = 'No useful partner was found for this party.';
-        } else {
-            v.className = 'result-value ok';
-            v.textContent = 'P' + code;
-            $('result-kicker').textContent = 'Recommended partner';
-            $('result-text').textContent = 'Your best partner is participant ' + code + '.';
-        }
-    }
+    // ---- Compute: load atlas-party.js and start this party ----
     function onOut(line) {
         var m = /PARTNER CODE\s*=\s*(-?\d+)/i.exec(line);
-        if (m) result(parseInt(m[1], 10));
+        if (m) showResult(parseInt(m[1], 10));
     }
     function onErr(line) {
-        var log = $('syslog');
-        log.textContent += line + '\n';
+        var log = $('output');
+        log.value += line + '\n';
         log.scrollTop = log.scrollHeight;
-        if (/All clients connected/i.test(line)) stage('compute');
-        else if (/DataChannel|Starting|connect/i.test(line)) stage('connect');
+    }
+    function fail() {
+        $('spinner').hidden = true;
+        $('result-kicker').textContent = 'El cálculo se detuvo con un error.';
+        $('result-sub').textContent = 'Revisa los detalles técnicos abajo.';
+    }
+
+    function showResult(code) {
+        setStep(3, 'done');
+        setStep(4, 'done');
+        $('spinner').hidden = true;
+        var v = $('result-value');
+        v.hidden = false;
+        var partner = countries[code];
+        if (code === -1) {
+            v.className = 'value none';
+            v.textContent = 'Sin coincidencia';
+            $('result-kicker').innerHTML = 'País recomendado';
+            $('result-sub').textContent = 'No se encontró un aliado útil con las capacidades ingresadas.';
+        } else {
+            v.className = 'value ok';
+            v.innerHTML = (partner ? flagOf(partner) + ' ' : '') + 'P' + code;
+            $('result-kicker').innerHTML = 'País recomendado <span class="badge-complement">Mejor complemento</span>';
+            $('result-sub').textContent = 'Este país puede complementar tus capacidades actuales.' + (partner ? ' (' + nameOf(partner) + ')' : '');
+        }
+        drawRelationBoard(code);
+        drawRecap();
+    }
+
+    function drawRelationBoard(matchIndex) {
+        var board = $('relation-board');
+        board.innerHTML = '';
+        var positions = [
+            { x: 22, y: 30 }, { x: 55, y: 18 }, { x: 40, y: 72 }, { x: 80, y: 48 }
+        ];
+        var svgNS = 'http://www.w3.org/2000/svg';
+        var svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('class', 'relation-line');
+        svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+        svg.style.position = 'absolute'; svg.style.inset = '0';
+        if (matchIndex !== null && matchIndex !== -1) {
+            var a = positions[myIndex], b = positions[matchIndex];
+            var line = document.createElementNS(svgNS, 'line');
+            line.setAttribute('x1', a.x + '%'); line.setAttribute('y1', a.y + '%');
+            line.setAttribute('x2', b.x + '%'); line.setAttribute('y2', b.y + '%');
+            line.setAttribute('stroke', '#14a38b'); line.setAttribute('stroke-width', '2.5');
+            line.setAttribute('stroke-dasharray', '6 6');
+            svg.appendChild(line);
+        }
+        board.appendChild(svg);
+
+        for (var i = 0; i < mySize; i++) {
+            var node = document.createElement('div');
+            node.className = 'relation-node' + (i === myIndex ? ' me' : '') + (i === matchIndex ? ' match' : '');
+            node.style.left = positions[i].x + '%';
+            node.style.top = positions[i].y + '%';
+            node.innerHTML =
+                '<div class="bubble">' + flagOf(countries[i]) + '</div>' +
+                '<div class="node-label">P' + i + (i === myIndex ? ' (Tú)' : '') + '</div>';
+            board.appendChild(node);
+        }
+    }
+
+    function drawRecap() {
+        var grid = $('recap-grid');
+        grid.innerHTML = '';
+        SKILLS.forEach(function (s, i) {
+            var cell = document.createElement('div');
+            cell.className = 'recap-cell';
+            cell.innerHTML = '<div class="v">' + window.__mySkillValues[i] + '</div><div class="l">' + s.name + '</div>';
+            grid.appendChild(cell);
+        });
     }
 
     function startCompute(size, t, program) {
-        $('lobby-view').hidden = true;
-        $('compute-view').hidden = false;
-        stage('load');
+        $('view-skills').hidden = true;
+        $('view-result').hidden = false;
+        $('page-title').textContent = 'Resultado privado';
+        $('page-sub').textContent = 'Este resultado fue calculado de forma segura y solo tú puedes verlo.';
+        setStep(2, 'done');
 
         var outputElement = $('output');
         var statusElement = $('status');
@@ -510,19 +729,17 @@
                 if (text !== Module.setStatus.last.text) {
                     Module.setStatus.last.time = Date.now();
                     Module.setStatus.last.text = text;
-                    statusElement.innerHTML = text;
-                    if (text === '') { statusElement.textContent = 'Running'; stage('connect'); }
+                    statusElement.textContent = text;
                 }
             },
             totalDependencies: 0,
             monitorRunDependencies: function (left) {
                 Module.totalDependencies = Math.max(Module.totalDependencies, left);
-                Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'All downloads complete.');
+                Module.setStatus(left ? 'Preparando... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : 'Descarga completa.');
             }
         };
-        window.Module.setStatus('Downloading...');
+        window.Module.setStatus('Descargando runtime...');
         window.onerror = function () {
-            window.Module.setStatus('Exception thrown, see JavaScript console');
             try { fail(); } catch (e) {}
             window.Module.setStatus = function (t) { if (t) console.error('[post-exception status] ' + t); };
         };

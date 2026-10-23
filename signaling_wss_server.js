@@ -44,7 +44,8 @@ function lobbyStatus(lobby) {
       type: "lobby_status",
       size: lobby.size,
       connected: lobby.slots.filter(function (s) { return s != null; }).length,
-      ready: lobby.ready.slice()
+      ready: lobby.ready.slice(),
+      countries: lobby.countries.slice()
    };
 }
 
@@ -75,6 +76,7 @@ function lobbyLeave(connection) {
    if (lobby.slots[idx] === connection) {
       lobby.slots[idx] = null;
       lobby.ready[idx] = false;
+      lobby.countries[idx] = null;
    }
    if (lobby.slots.every(function (s) { return s == null; })) {
       lobbies.delete(connection.lobbyRoom);
@@ -203,7 +205,8 @@ wss.on('connection', function(connection) {
                   t: data.t != null ? String(data.t) : "1",
                   program: String(data.program || "surplus_matching_private"),
                   slots: Array(size).fill(null),
-                  ready: Array(size).fill(false)
+                  ready: Array(size).fill(false),
+                  countries: Array(size).fill(null)
                };
                lobbies.set(room, lobby);
             }
@@ -220,10 +223,20 @@ wss.on('connection', function(connection) {
                index: freeIndex,
                size: lobby.size,
                t: lobby.t,
-               program: lobby.program
+               program: lobby.program,
+               countries: lobby.countries.slice()
             });
             broadcastLobby(lobby, lobbyStatus(lobby));
             console.log("lobby_join: room=" + room + " index=" + freeIndex + "/" + lobby.size);
+            break;
+         }
+
+         case "lobby_set_country": {
+            if (!connection.lobbyRoom) break;
+            var lobby = lobbies.get(connection.lobbyRoom);
+            if (!lobby) break;
+            lobby.countries[connection.lobbyIndex] = String(data.country || "").slice(0, 40) || null;
+            broadcastLobby(lobby, lobbyStatus(lobby));
             break;
          }
 
