@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surplus · Cómo funciona</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f3f4fb;
+            --surface: #ffffff;
+            --surface-2: #f3f4fb;
+            --border: #e5e6f2;
+            --text: #171933;
+            --muted: #6b7088;
+            --accent: #5b5bd6;
+            --accent-2: #14a38b;
+            --accent-soft: #eef0fd;
+            --danger: #d64545;
+            --sidebar-bg: #12142a;
+            --sidebar-text: #c9cbe0;
+            --sidebar-active: #5b5bd6;
+            --shadow: 0 1px 2px rgba(23, 25, 51, 0.04), 0 10px 28px rgba(23, 25, 51, 0.06);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased;
+        }
+        .app { display: flex; min-height: 100vh; }
+
+        /* ---------- Sidebar (same as atlas-lobby.html) ---------- */
+        .sidebar { width: 240px; flex: none; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; padding: 22px 16px; }
+        .brand { display: flex; align-items: center; gap: 10px; padding: 0 6px 22px; }
+        .brand-mark { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; flex: none; }
+        .brand-name { font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -.2px; }
+        .brand-sub { font-size: 10.5px; color: #8c8fb5; }
+        nav.nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 12px; color: var(--sidebar-text); cursor: pointer; user-select: none; font-size: 13.5px; font-weight: 600; text-decoration: none; }
+        .nav-item .nav-icon { width: 20px; height: 20px; flex: none; opacity: .85; }
+        .nav-item .nav-hint { display: block; font-size: 10.5px; font-weight: 500; color: #80839f; }
+        .nav-item.active { background: var(--sidebar-active); color: #fff; }
+        .nav-item.active .nav-hint { color: #d9d9ff; }
+        .nav-item.disabled { opacity: .45; cursor: default; }
+        .nav-item.disabled .soon { margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: .3px; background: rgba(255,255,255,.08); border-radius: 999px; padding: 2px 7px; }
+        .sidebar-globe { flex: 1; min-height: 80px; display: flex; align-items: center; justify-content: center; opacity: .8; }
+        .sidebar-footer { font-size: 11px; color: #9699ba; line-height: 1.5; padding: 0 6px; }
+        .sidebar-footer .tag { font-weight: 700; color: #d7d9f0; }
+        .sidebar-mini-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .sidebar-mini-list span { display: flex; align-items: center; gap: 7px; }
+        .sidebar-mini-list i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); flex: none; }
+
+        /* ---------- Main ---------- */
+        .main { flex: 1; min-width: 0; padding: 26px 32px 40px; }
+        .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+        .topbar h1 { margin: 0 0 4px; font-size: 25px; font-weight: 800; letter-spacing: -.3px; }
+        .topbar p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 640px; }
+        .pill { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; box-shadow: var(--shadow); }
+        .secure-pill { color: var(--accent-2); }
+        .secure-pill small { display: block; font-weight: 500; color: var(--muted); font-size: 10px; }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 18px; }
+        .card-pad { padding: 20px 22px; }
+
+        /* ---------- Step grid ---------- */
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 18px; align-items: stretch; }
+        @media (max-width: 1100px) { .steps-grid { grid-template-columns: 1fr; } }
+        .step-card { display: flex; flex-direction: column; }
+        .step-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .step-badge { width: 26px; height: 26px; border-radius: 50%; flex: none; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+        .step-title { font-size: 14.5px; font-weight: 700; }
+        .step-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 0 0 14px; }
+        .step-visual { margin-top: auto; }
+
+        /* mini skill preview (step 1) */
+        .mini-skill { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+        .mini-skill .ic { width: 22px; height: 22px; border-radius: 6px; flex: none; display: grid; place-items: center; }
+        .mini-skill .bar-track { flex: 1; height: 7px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+        .mini-skill .bar-fill { height: 100%; border-radius: 999px; }
+        .mini-skill .val { font-size: 11px; font-weight: 700; color: var(--muted); width: 36px; text-align: right; flex: none; }
+        .lock-note { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); margin-top: 10px; padding: 8px 10px; background: var(--surface-2); border-radius: 10px; }
+
+        /* mesh diagram (step 2) */
+        .mesh { position: relative; height: 200px; }
+        .mesh-node { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .mesh-node .bubble { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); display: grid; place-items: center; box-shadow: var(--shadow); }
+        .mesh-node .bubble svg { width: 16px; height: 16px; color: var(--accent); }
+        .mesh-node .mesh-label { font-size: 9.5px; font-weight: 700; color: var(--muted); }
+        .mesh-caption { text-align: center; font-size: 10.5px; color: var(--muted); margin-top: 6px; }
+
+        /* result preview (step 3) */
+        .mini-result { text-align: center; padding: 8px 0; }
+        .mini-result .flag { font-size: 30px; }
+        .mini-result .who { font-size: 15px; font-weight: 800; margin-top: 4px; }
+        .mini-result .note { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* step 4 + privacy */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 900px) { .bottom-grid { grid-template-columns: 1fr; } }
+        .soon-tag { font-size: 9.5px; font-weight: 700; letter-spacing: .3px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 9px; }
+        .handshake-row { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 18px 0 8px; }
+        .handshake-row .flag-circle { width: 46px; height: 46px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 22px; border: 1px solid var(--border); }
+        .handshake-row svg { color: var(--accent); }
+
+        .privacy-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        @media (max-width: 900px) { .privacy-list { grid-template-columns: 1fr; } }
+        .privacy-item { text-align: center; padding: 6px 10px; }
+        .privacy-item .info-icon { width: 46px; height: 46px; border-radius: 14px; margin: 0 auto 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+        .privacy-item h4 { margin: 0 0 4px; font-size: 13px; font-weight: 700; }
+        .privacy-item p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+        .cta-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 4px 4px 0; }
+        .cta-row p { margin: 0; font-size: 13px; color: var(--muted); }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+            font-weight: 700; font-size: 13.5px; padding: 11px 20px; border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg>
+            </div>
+            <div><div class="brand-name">Surplus</div><div class="brand-sub">Skills without borders</div></div>
+        </div>
+        <nav class="nav">
+            <a class="nav-item" href="atlas-lobby.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><div><div>Mi país</div><div class="nav-hint">Mis habilidades y recomendación</div></div></a>
+            <div class="nav-item disabled"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg><div><div>Mapa global</div><div class="nav-hint">Países participantes</div></div><span class="soon">pronto</span></div>
+            <div class="nav-item disabled"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7.3 10.3 16M16 7.3 13.7 16M8.5 6h7"/></svg><div><div>Red de alianzas</div><div class="nav-hint">Conexiones públicas</div></div><span class="soon">pronto</span></div>
+            <a class="nav-item active" href="atlas-how-it-works.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div><div>Cómo funciona</div><div class="nav-hint">Tecnología MPC</div></div></a>
+        </nav>
+        <div class="sidebar-globe" aria-hidden="true">
+            <svg width="110" height="110" viewBox="0 0 110 110" fill="none">
+                <circle cx="55" cy="55" r="46" stroke="#3a3d66" stroke-width="1.4"/>
+                <circle cx="55" cy="55" r="46" stroke="#5b5bd6" stroke-width="1.4" stroke-dasharray="6 10" opacity=".5"/>
+                <ellipse cx="55" cy="55" rx="46" ry="18" stroke="#3a3d66" stroke-width="1"/>
+                <ellipse cx="55" cy="55" rx="20" ry="46" stroke="#3a3d66" stroke-width="1"/>
+                <circle cx="30" cy="40" r="3" fill="#14a38b"/><circle cx="75" cy="32" r="3" fill="#5b5bd6"/>
+                <circle cx="68" cy="75" r="3" fill="#5b5bd6"/><circle cx="35" cy="78" r="3" fill="#14a38b"/>
+            </svg>
+        </div>
+        <div class="sidebar-footer">
+            <div class="tag">Colaboración segura para<br>un mundo más fuerte.</div>
+            <div class="sidebar-mini-list"><span>Privacidad</span><span>Colaboración</span><span>Impacto real</span></div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>Cómo funciona</h1>
+                <p>Surplus utiliza Cómputo Multiparte (MPC) con ATLAS para encontrar el mejor aliado para cada país, manteniendo todas las capacidades privadas — sin que ningún servidor vea los datos.</p>
+            </div>
+            <div class="pill secure-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                <span>Conexión segura<small>Peer-to-peer, sin intermediarios</small></span>
+            </div>
+        </div>
+
+        <div class="steps-grid">
+            <!-- Step 1 -->
+            <div class="card step-card"><div class="card-pad">
+                <div class="step-head"><span class="step-badge">1</span><span class="step-title">Cada país ingresa sus capacidades</span></div>
+                <p class="step-desc">Cada país introduce, de forma privada, sus capacidades en distintas áreas. También se define un valor ideal por capacidad (en este caso, 10).</p>
+                <div class="step-visual">
+                    <div class="mini-skill"><div class="ic" style="background:#5b5bd6"></div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#5b5bd6"></div></div><div class="val">7/20</div></div>
+                    <div class="mini-skill"><div class="ic" style="background:#2563eb"></div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#2563eb"></div></div><div class="val">8/20</div></div>
+                    <div class="mini-skill"><div class="ic" style="background:#14a38b"></div><div class="bar-track"><div class="bar-fill" style="width:45%;background:#14a38b"></div></div><div class="val">9/20</div></div>
+                    <div class="mini-skill"><div class="ic" style="background:#e08a2b"></div><div class="bar-track"><div class="bar-fill" style="width:30%;background:#e08a2b"></div></div><div class="val">6/20</div></div>
+                    <div class="lock-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        Ejemplo ilustrativo — solo tú puedes ver estos datos.
+                    </div>
+                </div>
+            </div></div>
+
+            <!-- Step 2 -->
+            <div class="card step-card"><div class="card-pad">
+                <div class="step-head"><span class="step-badge">2</span><span class="step-title">Cálculo privado con MPC</span></div>
+                <p class="step-desc">Las capacidades de todos los países se procesan con ATLAS, un protocolo de MPC, directamente entre los navegadores — sin un servidor central que vea los datos.</p>
+                <div class="step-visual">
+                    <div class="mesh" id="mesh"></div>
+                    <div class="mesh-caption">Cada par de países se conecta de forma directa y encriptada (WebRTC).</div>
+                </div>
+            </div></div>
+
+            <!-- Step 3 -->
+            <div class="card step-card"><div class="card-pad">
+                <div class="step-head"><span class="step-badge">3</span><span class="step-title">Cada país recibe su recomendación</span></div>
+                <p class="step-desc">Cada país obtiene, de forma privada, el país que mejor complementa sus capacidades. Solo tú puedes ver tu propia recomendación.</p>
+                <div class="step-visual">
+                    <div class="mini-result">
+                        <div class="flag">🇨🇴</div>
+                        <div class="who">Tu mejor aliado: P2</div>
+                        <div class="note">Este país puede complementar tus capacidades actuales.</div>
+                    </div>
+                    <div class="lock-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        No se muestran las capacidades de otros países ni los detalles del cálculo.
+                    </div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="card"><div class="card-pad">
+                <div class="step-head"><span class="step-badge">4</span><span class="step-title">Conexiones públicas (opcionales)</span><span class="soon-tag" style="margin-left:auto">Próximamente</span></div>
+                <p class="step-desc">Si ambos países deciden formar una alianza y <b>ambos</b> autorizan publicarla, la conexión podrá aparecer en una futura sección "Red de alianzas". De lo contrario, la recomendación permanece privada para siempre — nunca se publica sin el consentimiento explícito de los dos países.</p>
+                <div class="handshake-row">
+                    <div class="flag-circle">🇲🇽</div>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19c0-3 2.9-5.4 6.5-5.4s6.5 2.4 6.5 5.4"/><circle cx="18" cy="8.5" r="2.4"/><path d="M15.8 13.8c2.6.4 4.7 2.3 4.7 5"/></svg>
+                    <div class="flag-circle">🇨🇴</div>
+                </div>
+                <div class="lock-note" style="justify-content:center">Solo las alianzas confirmadas por ambos países se mostrarían públicamente.</div>
+            </div></div>
+
+            <div class="card"><div class="card-pad">
+                <div class="step-head" style="margin-bottom:12px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span class="step-title">Privacidad en cada paso</span></div>
+                <p class="step-desc" style="margin-bottom:14px">Surplus garantiza que las capacidades, excedentes y resultados detallados de todos los países permanecen privados, en todo momento.</p>
+                <div class="privacy-list">
+                    <div class="privacy-item">
+                        <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+                        <h4>Datos encriptados</h4>
+                        <p>Las capacidades se comparten como shares, no como valores reales.</p>
+                    </div>
+                    <div class="privacy-item">
+                        <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/><line x1="4" y1="20" x2="20" y2="4"/></svg></div>
+                        <h4>Sin servidor central</h4>
+                        <p>El cómputo ocurre entre los navegadores — nadie en el medio ve tus datos.</p>
+                    </div>
+                    <div class="privacy-item">
+                        <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                        <h4>Cálculo seguro con ATLAS</h4>
+                        <p>ATLAS permite el cálculo de forma eficiente sin revelar los datos privados.</p>
+                    </div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="card"><div class="card-pad cta-row">
+            <p>¿Listo para probarlo? Ingresa tus capacidades y encuentra tu mejor aliado, de forma privada.</p>
+            <a class="cta-btn" href="atlas-lobby.html">Probar la demo
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+        </div></div>
+    </main>
+</div>
+
+<script>
+(function () {
+    // Mesh diagram: 4 nodes, every pair connected directly — matches the
+    // actual WebRTC topology (each party opens a data channel to every
+    // other party), with no central node, unlike a hub-and-spoke diagram.
+    var mesh = document.getElementById('mesh');
+    var positions = [
+        { x: 50, y: 15 }, { x: 85, y: 55 }, { x: 50, y: 88 }, { x: 15, y: 55 }
+    ];
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+    svg.style.position = 'absolute'; svg.style.inset = '0';
+    mesh.style.position = 'relative';
+    for (var i = 0; i < 4; i++) {
+        for (var j = i + 1; j < 4; j++) {
+            var line = document.createElementNS(svgNS, 'line');
+            line.setAttribute('x1', positions[i].x + '%'); line.setAttribute('y1', positions[i].y + '%');
+            line.setAttribute('x2', positions[j].x + '%'); line.setAttribute('y2', positions[j].y + '%');
+            line.setAttribute('stroke', '#c7c9ea'); line.setAttribute('stroke-width', '1.5');
+            svg.appendChild(line);
+        }
+    }
+    mesh.appendChild(svg);
+    var lockPath = '<rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>';
+    positions.forEach(function (p) {
+        var node = document.createElement('div');
+        node.className = 'mesh-node';
+        node.style.left = p.x + '%'; node.style.top = p.y + '%';
+        node.innerHTML = '<div class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + lockPath + '</svg></div>';
+        mesh.appendChild(node);
+    });
+})();
+</script>
+</body>
+</html>
