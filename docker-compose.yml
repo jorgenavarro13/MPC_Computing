@@ -2,15 +2,15 @@
 #
 #   docker compose up --build
 #
-# Then open these 4 URLs in 4 Chrome tabs (same machine):
-#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,0,surplus_matching_private,-OF,.
-#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,1,surplus_matching_private,-OF,.
-#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,2,surplus_matching_private,-OF,.
-#   https://localhost:8000/atlas-party.html?arguments=-N,4,-T,1,-w,0,3,surplus_matching_private,-OF,.
+# Then each participant opens the lobby, which assigns seats automatically:
+#   https://localhost:8000/atlas-lobby.html        (4 tabs on this machine), or
+#   https://<this-machine-LAN-IP>:8000/atlas-lobby.html   (other devices on the same Wi-Fi)
+# Both ports are published on all host interfaces, so the second form works
+# from other laptops as long as the host firewall allows 8000 and 8080.
 #
 # Chrome will warn about the self-signed certificate on first visit to both
-# https://localhost:8000 and https://localhost:8080 — click through/accept it
-# on each before opening the party tabs (the signaling server also needs the
+# https://<host>:8000 and https://<host>:8080 — click through/accept it on
+# each device before opening the lobby (the signaling server also needs the
 # cert trusted since it speaks wss://). Works the same on Linux, Intel Mac
 # and Apple Silicon Mac — nothing here is architecture-specific.
 #
