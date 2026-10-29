@@ -32,6 +32,7 @@ We believe that webSPDZ brings forth many interesting and practically relevant u
   - [🛡️ Supported Security Models](#%EF%B8%8F-supported-security-models)
   - [⚙️ Building](#%EF%B8%8F-building) 
   - [🏃 Running](#-running)
+  - [🌐 Running Across Multiple Devices (ATLAS Lobby Demo)](#-running-across-multiple-devices-atlas-lobby-demo)
 * [📑 Paper and Citation](#-paper-and-citation)
 * [🏋️ Further Information on Transforming MP-SPDZ to webSPDZ](#%EF%B8%8F-further-information-on-transforming-mp-spdz-to-webspdz)
 ___
@@ -100,7 +101,7 @@ To run webSPDZ, start a server for hosting the webpage. Some features of WebAsse
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 ```
-The needed services (WebServer and SignalingServer for establishing the secure WebRTC connection) are already included in the repository. Both servers can be started by running ```./run-servers.sh```.
+The needed services (WebServer and SignalingServer for establishing the secure WebRTC connection) are already included in the repository. Both servers can be started by running ```bash run-servers.sh``` (binds to `localhost`), or ```bash run-servers.sh 0.0.0.0``` to accept connections from other devices on the network.
 Otherwise, the servers can be started manually:
 ```
 python3 https-server.py "IP" "PORT"
@@ -134,6 +135,19 @@ localhost:8000/shamir-party.html?arguments=-N,3,-w,0,-ss,192.168.1.1:2000,2,tuto
  ```
 
 Please note that the used certificates for the `https-server` and `websocket` servers in the repository are self-signed and may not be trusted by the browser. You may need to add an exception in the "trusted certificate store" in the browser. For instance, visit `https://localhost:XXXX` (where XXXX names the port of https- and wss-server) and add the exception.
+
+___
+### 🌐 Running Across Multiple Devices (ATLAS Lobby Demo)
+This fork adds a 4-party *surplus matching* demo under the ATLAS protocol with a browser lobby (`atlas-lobby.html`): participants open one shared link, get a seat assigned automatically, and type their private input live in the page.
+Each party can run on a **different computer on the same local network**:
+
+```
+docker compose up --build            # or: bash run-servers.sh 0.0.0.0
+# then, on every device: https://<server-IP>:8000/atlas-lobby.html
+```
+
+The lobby passes `-ss <page hostname>:8080` to the party, so remote devices reach the signaling server instead of their own `localhost`.
+See [MULTI_DEVICE.md](MULTI_DEVICE.md) for the networking architecture, certificate setup, troubleshooting (Wi-Fi client isolation, Docker DNS issues), mobile support, and options for running across different networks.
 
 ___
 ## 📑 Paper and Citation
