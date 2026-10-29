@@ -28,6 +28,8 @@ services:
 
   signaling:
     image: webspdz-demo:local
+    # Built locally by the `web` service — never try to pull it from Docker Hub.
+    pull_policy: never
     command: ["node", "signaling_wss_server.js", "0.0.0.0", "8080"]
     ports:
       - "8080:8080"
