@@ -748,7 +748,11 @@
         script.src = 'atlas-party.js';
         script.async = true;
         script.onload = function () {
-            var args = ['-N', String(size), '-T', String(t), '-w', '0', String(myIndex), program, '-OF', '.'];
+            // -ss defaults to localhost:8080, which only works when every party
+            // runs on the server machine; point it at the host that served this
+            // page so parties on other devices on the LAN reach the same server.
+            var args = ['-N', String(size), '-T', String(t), '-w', '0', String(myIndex),
+                        '-ss', window.location.hostname + ':8080', program, '-OF', '.'];
             var inputText = window.__mySkillValues.join('\n') + '\n';
             var inputFiles = {};
             inputFiles['Player-Data/Input-P' + myIndex + '-0'] = inputText;
